@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 
 static unsigned char padBuffer[2][256] ALIGNED(64);
 static unsigned int prevInputs[2] = {0, 0};
@@ -60,6 +61,7 @@ int waitForInput(int button) {
     curInputs = (readPad(0, 0) | readPad(1, 0));
     if (curInputs & button)
       return curInputs;
+    usleep(1000);
   }
 }
 

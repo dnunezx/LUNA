@@ -27,6 +27,7 @@ set(SOURCES
     src/ui/gui.c
     src/ui/graphics.c
     src/ui/handoff.c
+    src/ui/ambient.c
   src/ui/navigation.c
   src/ui/view_state.c
   src/ui/art_cache.c
@@ -78,6 +79,8 @@ endif()
 
 if(LUNA_EMULATOR_BUILD)
   add_definitions(-DLUNA_EMULATOR_BUILD)
+  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/assets/ambient.wav
+                 ${CMAKE_CURRENT_BINARY_DIR}/ambient.wav COPYONLY)
 endif()
 
 # Create the main executable
@@ -110,6 +113,7 @@ target_link_libraries(${EE_BIN}
     png
     z
     tiff
+    audsrv
 )
 
 # Set link flags for PS2

@@ -5,8 +5,8 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
-if ($Version -and $Version -notmatch '^v[0-9]+\.[0-9]+\.[0-9]+(?:-rc\.[0-9]+)?$') {
-    throw "Invalid version: $Version (expected vMAJOR.MINOR.PATCH or vMAJOR.MINOR.PATCH-rc.N)."
+if ($Version -and $Version -notmatch '^v[0-9]+\.[0-9]+\.[0-9]+(?:-rc\.[0-9]+|-beta(?:\.[0-9]+)?)?$') {
+    throw "Invalid version: $Version (expected vMAJOR.MINOR.PATCH, -rc.N, or -beta[.N])."
 }
 
 $workspace = Split-Path -Parent $PSScriptRoot
@@ -20,12 +20,14 @@ $archive = Join-Path $dist $archiveName
 
 $launcher = Join-Path $dist $launcherName
 $launcherConfig = Join-Path $workspace 'nhddl/examples/luna.yaml'
+$ambientAsset = Join-Path $workspace 'nhddl/assets/ambient.wav'
 $neutrinoRoot = Join-Path $workspace 'neutrino/ee/loader'
 $fmcbReadme = Join-Path $workspace 'FMCB.md'
 $packageReadme = if (Test-Path -LiteralPath $fmcbReadme) { $fmcbReadme } else { Join-Path $workspace 'README.md' }
 $required = @(
     $launcher,
     $launcherConfig,
+    $ambientAsset,
     (Join-Path $neutrinoRoot 'neutrino.elf'),
     (Join-Path $neutrinoRoot 'version.txt'),
     (Join-Path $neutrinoRoot 'config/system.toml'),
@@ -50,6 +52,7 @@ if (Test-Path -LiteralPath $package) {
 }
 
 New-Item -ItemType Directory -Path $app -Force | Out-Null
+Copy-Item -LiteralPath $ambientAsset -Destination (Join-Path $app 'ambient.wav')
 Copy-Item -LiteralPath $launcher -Destination (Join-Path $app 'luna.elf')
 Copy-Item -LiteralPath $launcherConfig -Destination (Join-Path $app 'luna.yaml')
 Copy-Item -LiteralPath (Join-Path $neutrinoRoot 'neutrino.elf') -Destination $app
@@ -60,7 +63,7 @@ $packageReadmeText = [IO.File]::ReadAllText($packageReadme)
 if ($Version) {
     $packageReadmeText = [regex]::Replace(
         $packageReadmeText,
-        'LUNA-v[0-9]+\.[0-9]+\.[0-9]+(?:-rc\.[0-9]+)?-FMCB-mc0\.zip',
+        'LUNA-v[0-9]+\.[0-9]+\.[0-9]+(?:-rc\.[0-9]+|-beta(?:\.[0-9]+)?)?-FMCB-mc0\.zip',
         $archiveName
     )
 }

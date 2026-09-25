@@ -4,6 +4,7 @@
 #include "devices/init.h"
 #include "dprintf.h"
 #include "neutrino.h"
+#include "ui/ambient.h"
 #include "options.h"
 #include <debug.h>
 #include <kernel.h>
@@ -148,6 +149,8 @@ void launchTitleWithProgress(Target *target, ArgumentList *arguments,
   if (progress != NULL)
     progress(LAUNCH_STAGE_STARTING, userdata);
 
+  // The launcher is about to replace its own memory with Neutrino.
+  ambientStop();
   launchELF(argCount, argv);
 }
 

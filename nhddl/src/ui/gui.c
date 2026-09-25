@@ -5,6 +5,7 @@
 #include "neutrino.h"
 #include "options.h"
 #include "ui/args.h"
+#include "ui/ambient.h"
 #include "ui/art_cache.h"
 #include "ui/graphics.h"
 #include "ui/handoff.h"
@@ -57,7 +58,8 @@ typedef enum {
 
 void closeUI();
 int uiLoop(TargetList *titles);
-int uiTitleOptionsLoop(Target *title, int *classicArtOverlap, int *orbsEnabled);
+int uiTitleOptionsLoop(Target *title, int *classicArtOverlap, int *orbsEnabled,
+                       int *orbsBackground, int *ambientEnabled);
 int uiArgumentListLoop(Target *target, ArgumentList *titleArguments, const OptionsBackdrop *backdrop);
 void uiLaunchTitle(Target *target, ArgumentList *arguments, GSTEXTURE *cover);
 void drawGameID(const char *game_id);
@@ -67,6 +69,7 @@ void closeUISplashThread();
 
 GSGLOBAL *gsGlobal;
 char lineBuffer[255];
+static int orbsBackground = 0;
 
 const int keepoutArea = 20;
 const int headerHeight = 40;
@@ -535,7 +538,7 @@ static void drawOrbTrailSegment(float oldX, float oldY, float newX, float newY,
 }
 
 static void drawSevenOrbs(int centerX, int centerY, int radiusX, int radiusY,
-                          uint32_t elapsedMs, int glowScale) {
+                          uint32_t elapsedMs, int glowScale, int trailZ) {
   OrbMotion motion[ORB_TRAIL_SEGMENTS + 1];
   for (int sample = 0; sample <= ORB_TRAIL_SEGMENTS; sample++) {
     const uint32_t age = sample * ORB_TRAIL_STEP_MS;
@@ -567,10 +570,10 @@ static void drawSevenOrbs(int centerX, int centerY, int radiusX, int radiusY,
       const int newOuterWidth = 3 + (ORB_TRAIL_SEGMENTS - segment + 1) * 6 / ORB_TRAIL_SEGMENTS;
       const int oldInnerWidth = 2 + (ORB_TRAIL_SEGMENTS - segment) * 3 / ORB_TRAIL_SEGMENTS;
       const int newInnerWidth = 2 + (ORB_TRAIL_SEGMENTS - segment + 1) * 3 / ORB_TRAIL_SEGMENTS;
-      drawOrbTrailSegment(oldX, oldY, newX, newY, oldOuterWidth, newOuterWidth, 5,
+      drawOrbTrailSegment(oldX, oldY, newX, newY, oldOuterWidth, newOuterWidth, trailZ,
                           GS_SETREG_RGBA(0x40, 0x78, 0xC8, oldOuterAlpha),
                           GS_SETREG_RGBA(0x40, 0x78, 0xC8, newOuterAlpha));
-      drawOrbTrailSegment(oldX, oldY, newX, newY, oldInnerWidth, newInnerWidth, 5,
+      drawOrbTrailSegment(oldX, oldY, newX, newY, oldInnerWidth, newInnerWidth, trailZ,
                           GS_SETREG_RGBA(0xA0, 0xD8, 0xFF, oldInnerAlpha),
                           GS_SETREG_RGBA(0xA0, 0xD8, 0xFF, newInnerAlpha));
       newX = oldX;
@@ -581,10 +584,10 @@ static void drawSevenOrbs(int centerX, int centerY, int radiusX, int radiusY,
     const int haloAlpha = 0x13 + (int)(depth / 13.0f);
     const int coreAlpha = 0x50 + (int)(depth / 3.0f);
 
-    drawOrbGlowDisc(x, y, haloRadius, 6,
+    drawOrbGlowDisc(x, y, haloRadius, trailZ + 1,
                     GS_SETREG_RGBA(0x70, 0xA8, 0xE8, haloAlpha),
                     GS_SETREG_RGBA(0x70, 0xA8, 0xE8, 0));
-    drawOrbGlowDisc(x, y, coreRadius, 6,
+    drawOrbGlowDisc(x, y, coreRadius, trailZ + 1,
                     GS_SETREG_RGBA(0xE0, 0xF0, 0xFF, coreAlpha),
                     GS_SETREG_RGBA(0xE0, 0xF0, 0xFF, 0));
   }
@@ -657,7 +660,18 @@ static void drawGlassBackground(uint32_t frameNowMs) {
 
 void drawSharedLibraryBackground(uint32_t frameNowMs) {
 #ifdef LUNA_GLASS_UI
-  drawGlassBackground(frameNowMs);
+  if (orbsBackground) {
+    const int width = gsGlobal->Width;
+    const int height = gsGlobal->Height;
+    const uint64_t black = GS_SETREG_RGBA(0x00, 0x00, 0x00, 0x80);
+    gsKit_prim_quad_gouraud(gsGlobal, 0, 0, width, 0, 0, height,
+                            width, height, 0, black, black, black, black);
+    drawSevenOrbs(width * 65 / 100, height * 52 / 100,
+                  width * 20 / 100, height * 30 / 100,
+                  glassElapsedMs(frameNowMs), 100, 0);
+  } else {
+    drawGlassBackground(frameNowMs);
+  }
 #else
   (void)frameNowMs;
 #endif
@@ -758,7 +772,7 @@ static void drawOrbsView(TargetList *titles, int selectedTitleIdx,
 #ifdef LUNA_GLASS_UI
   drawSevenOrbs(width * 27 / 100, centerY, width * 20 / 100,
                 (listBottom - listTop) * 36 / 100,
-                glassElapsedMs(now), 100);
+                glassElapsedMs(now), 100, 5);
 #endif
 
   for (int i = 0; i < ORBS_LOGO_CACHE_COUNT; i++) {
@@ -997,6 +1011,7 @@ int uiLoop(TargetList *titles) {
   int classicPreviousCoverAvailable = 0;
   int classicArtOverlap = 0;
   int orbsEnabled = 0;
+  int ambientEnabled = 1;
   uint32_t classicArtDueMs = 0;
   uint32_t classicCoverFadeStartMs = 0;
   LunaNavRepeatState classicRepeat = {0};
@@ -1027,6 +1042,9 @@ int uiLoop(TargetList *titles) {
   free(lastTitle);
   view = loadLastLibraryView(curTarget);
   orbsEnabled = loadOrbsViewEnabled(curTarget);
+  orbsBackground = loadOrbsBackground(curTarget);
+  ambientEnabled = loadAmbientSoundEnabled(curTarget);
+  ambientSetEnabled(ambientEnabled);
   if (view == UI_VIEW_ORBS && !orbsEnabled)
     view = UI_VIEW_CLASSIC;
   classicArtOverlap = loadClassicArtOverlap(curTarget);
@@ -1392,6 +1410,7 @@ int uiLoop(TargetList *titles) {
     gsKit_queue_exec(gsGlobal);
     gsKit_finish();
     gsKit_sync_flip(gsGlobal);
+    usleep(1000);
 
     // Keep rendering after options close, while ignoring the Triangle press
     // that closed them until the button is released.
@@ -1883,8 +1902,10 @@ int uiLoop(TargetList *titles) {
                 lunaNavMarkedCount(favoriteFlags, titles->total) > 0)) {
       prevInput = 0; // Reset previous input
       // Enter title options screen
-      if ((res = uiTitleOptionsLoop(curTarget, &classicArtOverlap, &orbsEnabled)) < 0) {
+      if ((res = uiTitleOptionsLoop(curTarget, &classicArtOverlap, &orbsEnabled,
+                                    &orbsBackground, &ambientEnabled)) < 0) {
         // Something went wrong, main loop must exit immediately
+        ambientStop();
         freeTargetList(favoriteTitles);
         free(favoriteFlags);
         return -1;
@@ -1912,6 +1933,7 @@ int uiLoop(TargetList *titles) {
   }
 
 exit:
+  ambientStop();
   if (favoriteTitles != NULL)
     freeTargetList(favoriteTitles);
   free(favoriteFlags);
@@ -1989,6 +2011,7 @@ static void presentOptionsFrame(void) {
   gsKit_vsync_wait();
   // Keep ActiveBuffer fixed: the other buffer holds the untouched library view.
   gsKit_display_buffer(gsGlobal);
+  usleep(1000);
 }
 
 void drawTitleOptionsFooter(int baseX) {
@@ -2048,7 +2071,9 @@ static void drawOptionsCategoryFooter(int baseX, OptionsPage page) {
 static void drawTitleOptionsFrame(const OptionsBackdrop *backdrop, Target *target,
                                   OptionsPage page, int selectedCategory,
                                   int selectedGlobal, int pendingOverlap,
-                                  int pendingOrbs, int activeArgumentIdx,
+                                  int pendingOrbs, int pendingBackground,
+                                  int pendingAmbient,
+                                  int activeArgumentIdx,
                                   int saveError, int progress) {
   int baseX = keepoutArea + 10;
   const int lineHeight = getFontLineHeight();
@@ -2089,6 +2114,16 @@ static void drawTitleOptionsFrame(const OptionsBackdrop *backdrop, Target *targe
     drawText(baseX, menuTop + lineHeight + lineHeight / 2, 0,
              gsGlobal->Width - baseX, 0,
              selectedGlobal == 1 ? ColorSelected : FontMainColor, lineBuffer);
+    snprintf(lineBuffer, sizeof(lineBuffer), "Background (Experimental): %s",
+             pendingBackground ? "Orbs" : "Stars & cubes");
+    drawText(baseX, menuTop + 2 * (lineHeight + lineHeight / 2), 0,
+             gsGlobal->Width - baseX, 0,
+             selectedGlobal == 2 ? ColorSelected : FontMainColor, lineBuffer);
+    snprintf(lineBuffer, sizeof(lineBuffer), "Ambient sound: %s",
+             pendingAmbient ? "On" : "Off");
+    drawText(baseX, menuTop + 3 * (lineHeight + lineHeight / 2), 0,
+             gsGlobal->Width - baseX, 0,
+             selectedGlobal == 3 ? ColorSelected : FontMainColor, lineBuffer);
     drawOptionsCategoryFooter(baseX, page);
   } else {
     int focusY = menuTop;
@@ -2121,11 +2156,14 @@ static void drawTitleOptionsFrame(const OptionsBackdrop *backdrop, Target *targe
 
 // Handles the options menu and its per-game and global settings pages.
 // Returns -1 if error occurs
-int uiTitleOptionsLoop(Target *target, int *classicArtOverlap, int *orbsEnabled) {
+int uiTitleOptionsLoop(Target *target, int *classicArtOverlap, int *orbsEnabled,
+                       int *orbsBackgroundSetting, int *ambientEnabled) {
   int res = 0;
   int saveError = 0;
   int pendingOverlap = *classicArtOverlap;
   int pendingOrbs = *orbsEnabled;
+  int pendingBackground = *orbsBackgroundSetting;
+  int pendingAmbient = *ambientEnabled;
   int titleArgumentsChanged = 0;
   OptionsPage page = OPTIONS_MENU;
   int selectedCategory = 0;
@@ -2158,6 +2196,7 @@ int uiTitleOptionsLoop(Target *target, int *classicArtOverlap, int *orbsEnabled)
                    ? 1000 : (int)(elapsed * 1000U / OPTIONS_FADE_DURATION_MS);
     drawTitleOptionsFrame(&backdrop, target, page, selectedCategory,
                           selectedGlobal, pendingOverlap, pendingOrbs,
+                          pendingBackground, pendingAmbient,
                           activeArgumentIdx, saveError, progress);
     int heldInput = pollInput();
     if (!(heldInput & PAD_TRIANGLE))
@@ -2173,6 +2212,7 @@ int uiTitleOptionsLoop(Target *target, int *classicArtOverlap, int *orbsEnabled)
   while (1) {
     drawTitleOptionsFrame(&backdrop, target, page, selectedCategory,
                           selectedGlobal, pendingOverlap, pendingOrbs,
+                          pendingBackground, pendingAmbient,
                           activeArgumentIdx, saveError, 1000);
 
     // Process user inputs
@@ -2192,13 +2232,19 @@ int uiTitleOptionsLoop(Target *target, int *classicArtOverlap, int *orbsEnabled)
       continue;
     }
     if (page == OPTIONS_GLOBAL) {
-      if (input & (PAD_UP | PAD_DOWN)) {
-        selectedGlobal = 1 - selectedGlobal;
+      if (input & PAD_UP) {
+        selectedGlobal = (selectedGlobal + 3) % 4;
+      } else if (input & PAD_DOWN) {
+        selectedGlobal = (selectedGlobal + 1) % 4;
       } else if (input & (PAD_CROSS | PAD_CIRCLE)) {
         if (selectedGlobal == 0)
           pendingOverlap = !pendingOverlap;
-        else
+        else if (selectedGlobal == 1)
           pendingOrbs = !pendingOrbs;
+        else if (selectedGlobal == 2)
+          pendingBackground = !pendingBackground;
+        else
+          pendingAmbient = !pendingAmbient;
       } else if (input & PAD_START) {
         saveError = 0;
         if (pendingOverlap != *classicArtOverlap) {
@@ -2213,11 +2259,25 @@ int uiTitleOptionsLoop(Target *target, int *classicArtOverlap, int *orbsEnabled)
           if (!saveError)
             *orbsEnabled = pendingOrbs;
         }
+        if (!saveError && pendingBackground != *orbsBackgroundSetting) {
+          saveError = saveOrbsBackground(target, pendingBackground);
+          if (!saveError)
+            *orbsBackgroundSetting = pendingBackground;
+        }
+        if (!saveError && pendingAmbient != *ambientEnabled) {
+          saveError = saveAmbientSoundEnabled(target, pendingAmbient);
+          if (!saveError) {
+            *ambientEnabled = pendingAmbient;
+            ambientSetEnabled(pendingAmbient);
+          }
+        }
         if (!saveError)
           page = OPTIONS_MENU;
       } else if (input & PAD_TRIANGLE) {
         pendingOverlap = *classicArtOverlap;
         pendingOrbs = *orbsEnabled;
+        pendingBackground = *orbsBackgroundSetting;
+        pendingAmbient = *ambientEnabled;
         saveError = 0;
         page = OPTIONS_MENU;
       }
@@ -2286,6 +2346,7 @@ exit:
                      ? 0 : 1000 - (int)(elapsed * 1000U / OPTIONS_FADE_DURATION_MS);
       drawTitleOptionsFrame(&backdrop, target, page, selectedCategory,
                             selectedGlobal, pendingOverlap, pendingOrbs,
+                            pendingBackground, pendingAmbient,
                             activeArgumentIdx, 0, progress);
     } while (progress > 0);
   }

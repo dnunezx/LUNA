@@ -9,6 +9,8 @@
 #include "options.h"
 #include "target.h"
 #include "ui/ui.h"
+#include "ui/ambient.h"
+#include "ui/view_state.h"
 #include <ctype.h>
 #include <debug.h>
 #include <fcntl.h>
@@ -136,6 +138,28 @@ int main(int argc, char *argv[]) {
     goto fail;
   }
 
+  // Let the audio worker preempt long cover decodes in the UI thread.
+  if (ChangeThreadPriority(GetThreadId(), 0x20) < 0)
+    DPRINTF("WARN: Could not lower UI thread priority for ambient audio\n");
+
+  // Start the soundtrack as soon as the library drive is ready, while the
+  // splash is still visible. Use the restored title for its audio preference.
+  Target *audioTarget = titles->first;
+  char lastAudioTitle[PATH_MAX + 1];
+  if (!getLastLaunchedTitle(lastAudioTitle, sizeof(lastAudioTitle))) {
+    for (Target *candidate = titles->first; candidate != NULL;
+         candidate = candidate->next) {
+      int relative = getRelativePathIdx(candidate->fullPath);
+      if (relative < 0)
+        relative = 0;
+      if (!strcmp(lastAudioTitle, candidate->fullPath + relative)) {
+        audioTarget = candidate;
+        break;
+      }
+    }
+  }
+  ambientStart(loadAmbientSoundEnabled(audioTarget));
+
   stopUISplashThread();
   if ((res = uiLoop(titles))) {
     init_scr();
@@ -147,6 +171,7 @@ int main(int argc, char *argv[]) {
   return 0;
 
 fail:
+  ambientStop();
   sleep(10);
   return 1;
 }

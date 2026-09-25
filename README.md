@@ -34,7 +34,7 @@ memory card; your games and artwork stay on the internal hard drive.
 
 ### 1. Put LUNA on the USB drive
 
-1. On your computer, download the `LUNA-v1.1.0-FMCB-mc0.zip` file.
+1. On your computer, download the `LUNA-v1.2.7-beta-FMCB-mc0.zip` file.
 2. Open the ZIP file and choose **Extract** or **Extract all**. Open the
    extracted folders until you can see a folder named `APP_LUNA`.
 3. Plug the USB flash drive into your computer. Open the USB drive and copy
@@ -64,6 +64,7 @@ memory card; your games and artwork stay on the internal hard drive.
    mc0:/APP_LUNA/luna.elf
    mc0:/APP_LUNA/luna.yaml
    mc0:/APP_LUNA/neutrino.elf
+   mc0:/APP_LUNA/ambient.wav
    mc0:/APP_LUNA/config/
    mc0:/APP_LUNA/modules/
    ```
@@ -85,7 +86,8 @@ memory card; your games and artwork stay on the internal hard drive.
 
 The packaged configuration is for the memory card in slot 1 (`mc0:`). For a
 card installed in slot 2, use `mc1:/APP_LUNA/luna.elf` in the FMCB menu and
-change `return_path` in `luna.yaml` from `mc0:` to `mc1:`.
+change `return_path` in `luna.yaml` from `mc0:` to `mc1:`. The complete
+`APP_LUNA` folder uses about 2.26 MB on the memory card.
 
 ## Preparing the game drive
 
@@ -181,6 +183,8 @@ both the NHDDL-derived frontend and the Neutrino-derived game runtime.
 | Grid view | A 4x4 artwork grid with paged caching, row-cascade transitions, large selected-cover preview, and fast-track shoulder navigation. |
 | Orbit view | A depth-sorted ring of covers with perspective, fading, shared artwork caching, and a Square-button Random Scan that avoids reselecting the current title. |
 | Orbs view | An experimental view with seven spinning lights and optional logo and background artwork; disabled by default. |
+| Experimental background | Switch the shared library background between stars and cubes or the Orbs animation. |
+| Ambient music | A one-minute loop included on the memory card, enabled by default and controllable in Global settings. |
 | Favorites | Per-drive Favorites stored in `/LUNA/favorites.txt`, shared by Classic and Collection without modifying the game library. |
 | Artwork | OPL-compatible covers plus optional disc labels and PSBBN-style square artwork, with view-specific caching and GS VRAM recovery. |
 | Configured storage scan | The library scans ATA and HDL when available. USB, MX4SIO, MMCE, iLink, and UDPFS require explicit `mode:` entries. The shipped configuration uses internal ATA/exFAT and avoids waiting for a nonexistent second mass-storage device. |
@@ -223,6 +227,11 @@ game. Optional logo and background artwork can be added for each title.
   half hidden. The choice is saved for the library on that drive.
 - **Orbs view:** choose **Global settings**, select **Orbs view (Experimental)**,
   press **Cross** or **Circle** to turn it on or off, then press **Start** to save.
+- **Background:** choose **Global settings**, select **Background (Experimental)**,
+  choose Stars & cubes or Orbs, then press **Start** to save.
+- **Ambient sound:** choose **Global settings**, select **Ambient sound**, turn
+  it On or Off, then press **Start** to save. The compressed soundtrack is
+  loaded into memory to keep music playing during artwork loading.
 - **Start:** exit the library.
 - **Square in Classic:** add or remove the selected game from Favorites.
 - **Select in Classic or Collection:** switch between the full library and
@@ -274,6 +283,8 @@ Writable state stays with the game drive:
 /LUNA/lastView.txt
 /LUNA/classicLayout.txt
 /LUNA/orbsView.txt
+/LUNA/background.txt
+/LUNA/ambientSound.txt
 /LUNA/favorites.txt
 /LUNA/global.yaml
 /LUNA/<game name>.yaml

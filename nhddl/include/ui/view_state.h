@@ -18,4 +18,12 @@ int saveClassicArtOverlap(Target *target, int overlap);
 int loadOrbsViewEnabled(Target *target);
 int saveOrbsViewEnabled(Target *target, int enabled);
 
+// The shared library background defaults to stars and cubes.
+int loadOrbsBackground(Target *target);
+int saveOrbsBackground(Target *target, int enabled);
+
+// Ambient sound is enabled when no valid preference has been saved.
+int loadAmbientSoundEnabled(Target *target);
+int saveAmbientSoundEnabled(Target *target, int enabled);
+
 #endif

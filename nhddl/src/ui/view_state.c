@@ -13,6 +13,10 @@ static const char classicLayoutPath[] = "/classicLayout.txt";
 static const char classicLayoutTempPath[] = "/classicLayout.txt.tmp";
 static const char orbsViewPath[] = "/orbsView.txt";
 static const char orbsViewTempPath[] = "/orbsView.txt.tmp";
+static const char backgroundPath[] = "/background.txt";
+static const char backgroundTempPath[] = "/background.txt.tmp";
+static const char ambientSoundPath[] = "/ambientSound.txt";
+static const char ambientSoundTempPath[] = "/ambientSound.txt.tmp";
 static const char *const viewNames[] = {
     "classic", "collection", "grid", "orbit", "orbs"};
 
@@ -218,6 +222,122 @@ int saveOrbsViewEnabled(Target *target, int enabled) {
   if (file == NULL)
     return -EIO;
   int writeResult = fprintf(file, "%s\n", enabled ? "enabled" : "disabled");
+  int closeResult = fclose(file);
+  if (writeResult < 0 || closeResult) {
+    remove(tempPath);
+    return -EIO;
+  }
+  remove(path);
+  if (rename(tempPath, path))
+    return -EIO;
+  return 0;
+}
+
+int loadOrbsBackground(Target *target) {
+  struct DeviceMapEntry *device = viewDevice(target);
+  const char *paths[] = {backgroundTempPath, backgroundPath};
+  char path[PATH_MAX];
+  char value[24];
+
+  if (device == NULL || device->mountpoint == NULL)
+    return 0;
+  for (int i = 0; i < 2; i++) {
+    if (buildConfigFilePath(path, sizeof(path), device->mountpoint, paths[i]))
+      continue;
+    FILE *file = fopen(path, "r");
+    if (file == NULL)
+      continue;
+    int readable = fgets(value, sizeof(value), file) != NULL;
+    fclose(file);
+    if (!readable)
+      continue;
+    value[strcspn(value, "\r\n")] = '\0';
+    if (!strcmp(value, "orbs"))
+      return 1;
+    if (!strcmp(value, "stars"))
+      return 0;
+  }
+  return 0;
+}
+
+int saveOrbsBackground(Target *target, int enabled) {
+  struct DeviceMapEntry *device = viewDevice(target);
+  char directory[PATH_MAX];
+  char path[PATH_MAX];
+  char tempPath[PATH_MAX];
+  struct stat st;
+  FILE *file;
+
+  if (device == NULL || device->mountpoint == NULL)
+    return -EINVAL;
+  if (buildConfigFilePath(directory, sizeof(directory), device->mountpoint, NULL) ||
+      buildConfigFilePath(path, sizeof(path), device->mountpoint, backgroundPath) ||
+      buildConfigFilePath(tempPath, sizeof(tempPath), device->mountpoint, backgroundTempPath))
+    return -ENAMETOOLONG;
+  if (stat(directory, &st) == -1 && mkdir(directory, 0777))
+    return -EIO;
+  file = fopen(tempPath, "w");
+  if (file == NULL)
+    return -EIO;
+  int writeResult = fprintf(file, "%s\n", enabled ? "orbs" : "stars");
+  int closeResult = fclose(file);
+  if (writeResult < 0 || closeResult) {
+    remove(tempPath);
+    return -EIO;
+  }
+  remove(path);
+  if (rename(tempPath, path))
+    return -EIO;
+  return 0;
+}
+
+int loadAmbientSoundEnabled(Target *target) {
+  struct DeviceMapEntry *device = viewDevice(target);
+  const char *paths[] = {ambientSoundTempPath, ambientSoundPath};
+  char path[PATH_MAX];
+  char value[24];
+
+  if (device == NULL || device->mountpoint == NULL)
+    return 1;
+  for (int i = 0; i < 2; i++) {
+    if (buildConfigFilePath(path, sizeof(path), device->mountpoint, paths[i]))
+      continue;
+    FILE *file = fopen(path, "r");
+    if (file == NULL)
+      continue;
+    int readable = fgets(value, sizeof(value), file) != NULL;
+    fclose(file);
+    if (!readable)
+      continue;
+    value[strcspn(value, "\r\n")] = '\0';
+    if (!strcmp(value, "off"))
+      return 0;
+    if (!strcmp(value, "on"))
+      return 1;
+  }
+  return 1;
+}
+
+int saveAmbientSoundEnabled(Target *target, int enabled) {
+  struct DeviceMapEntry *device = viewDevice(target);
+  char directory[PATH_MAX];
+  char path[PATH_MAX];
+  char tempPath[PATH_MAX];
+  struct stat st;
+  FILE *file;
+
+  if (device == NULL || device->mountpoint == NULL)
+    return -EINVAL;
+  if (buildConfigFilePath(directory, sizeof(directory), device->mountpoint, NULL) ||
+      buildConfigFilePath(path, sizeof(path), device->mountpoint, ambientSoundPath) ||
+      buildConfigFilePath(tempPath, sizeof(tempPath), device->mountpoint, ambientSoundTempPath))
+    return -ENAMETOOLONG;
+  if (stat(directory, &st) == -1 && mkdir(directory, 0777))
+    return -EIO;
+  file = fopen(tempPath, "w");
+  if (file == NULL)
+    return -EIO;
+  int writeResult = fprintf(file, "%s\n", enabled ? "on" : "off");
   int closeResult = fclose(file);
   if (writeResult < 0 || closeResult) {
     remove(tempPath);
