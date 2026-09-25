@@ -14,4 +14,8 @@ int saveLastLibraryView(Target *target, UILibraryView view);
 int loadClassicArtOverlap(Target *target);
 int saveClassicArtOverlap(Target *target, int overlap);
 
+// Orbs is an experimental library view and is disabled by default.
+int loadOrbsViewEnabled(Target *target);
+int saveOrbsViewEnabled(Target *target, int enabled);
+
 #endif

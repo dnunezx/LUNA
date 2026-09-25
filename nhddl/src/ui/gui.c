@@ -57,7 +57,7 @@ typedef enum {
 
 void closeUI();
 int uiLoop(TargetList *titles);
-int uiTitleOptionsLoop(Target *title, int *classicArtOverlap);
+int uiTitleOptionsLoop(Target *title, int *classicArtOverlap, int *orbsEnabled);
 int uiArgumentListLoop(Target *target, ArgumentList *titleArguments, const OptionsBackdrop *backdrop);
 void uiLaunchTitle(Target *target, ArgumentList *arguments, GSTEXTURE *cover);
 void drawGameID(const char *game_id);
@@ -449,7 +449,7 @@ static float orbWave(uint32_t phase) {
 }
 
 static void drawOrbGlowDisc(float centerX, float centerY, float radius,
-                            uint64_t centerColor, uint64_t edgeColor) {
+                            int z, uint64_t centerColor, uint64_t edgeColor) {
   const float scale = radius / 127.0f;
   for (int i = 0; i < 16; i++) {
     const int point = i * 2;
@@ -459,7 +459,7 @@ static void drawOrbGlowDisc(float centerX, float centerY, float radius,
     const float x2 = centerX + glassSin[(next + 8) & 31] * scale;
     const float y2 = centerY + glassSin[next] * scale;
     gsKit_prim_triangle_gouraud(gsGlobal, centerX, centerY, x1, y1, x2, y2,
-                                0, centerColor, edgeColor, edgeColor);
+                                z, centerColor, edgeColor, edgeColor);
   }
 }
 
@@ -487,10 +487,10 @@ static OrbMotion orbMotion(uint32_t elapsedMs) {
     tiltWave = -tiltWave;
   motion.tilt = 26.0f + (tiltWave * 74.0f) / 127.0f;
   // Fast grouping rides on a slower swell, as in the reference animation.
-  const float slowScale = 62.0f + orbWave(glassPhase(elapsedMs,
-                                  ORB_CONTRACT_PERIOD_MS, 0) + (8 << 11)) * 38.0f / 127.0f;
-  const float pulseScale = 85.0f + orbWave(glassPhase(elapsedMs,
-                                   ORB_PULSE_PERIOD_MS, 0) + (8 << 11)) * 15.0f / 127.0f;
+  const float slowScale = 80.0f + orbWave(glassPhase(elapsedMs,
+                                  ORB_CONTRACT_PERIOD_MS, 0) + (8 << 11)) * 20.0f / 127.0f;
+  const float pulseScale = 92.0f + orbWave(glassPhase(elapsedMs,
+                                   ORB_PULSE_PERIOD_MS, 0) + (8 << 11)) * 8.0f / 127.0f;
   motion.scale = slowScale * pulseScale / 100.0f;
   return motion;
 }
@@ -512,7 +512,7 @@ static void orbPosition(const OrbPath *path, const OrbMotion *motion,
 
 static void drawOrbTrailSegment(float oldX, float oldY, float newX, float newY,
                                 float oldWidth, float newWidth,
-                                uint64_t oldColor, uint64_t newColor) {
+                                int z, uint64_t oldColor, uint64_t newColor) {
   const float dx = newX - oldX;
   const float dy = newY - oldY;
   const float absDx = dx < 0 ? -dx : dx;
@@ -530,7 +530,7 @@ static void drawOrbTrailSegment(float oldX, float oldY, float newX, float newY,
                           oldX + oldOffsetX, oldY + oldOffsetY,
                           newX + newOffsetX, newY + newOffsetY,
                           oldX - oldOffsetX, oldY - oldOffsetY,
-                          newX - newOffsetX, newY - newOffsetY, 0,
+                          newX - newOffsetX, newY - newOffsetY, z,
                           oldColor, newColor, oldColor, newColor);
 }
 
@@ -567,10 +567,10 @@ static void drawSevenOrbs(int centerX, int centerY, int radiusX, int radiusY,
       const int newOuterWidth = 3 + (ORB_TRAIL_SEGMENTS - segment + 1) * 6 / ORB_TRAIL_SEGMENTS;
       const int oldInnerWidth = 2 + (ORB_TRAIL_SEGMENTS - segment) * 3 / ORB_TRAIL_SEGMENTS;
       const int newInnerWidth = 2 + (ORB_TRAIL_SEGMENTS - segment + 1) * 3 / ORB_TRAIL_SEGMENTS;
-      drawOrbTrailSegment(oldX, oldY, newX, newY, oldOuterWidth, newOuterWidth,
+      drawOrbTrailSegment(oldX, oldY, newX, newY, oldOuterWidth, newOuterWidth, 5,
                           GS_SETREG_RGBA(0x40, 0x78, 0xC8, oldOuterAlpha),
                           GS_SETREG_RGBA(0x40, 0x78, 0xC8, newOuterAlpha));
-      drawOrbTrailSegment(oldX, oldY, newX, newY, oldInnerWidth, newInnerWidth,
+      drawOrbTrailSegment(oldX, oldY, newX, newY, oldInnerWidth, newInnerWidth, 5,
                           GS_SETREG_RGBA(0xA0, 0xD8, 0xFF, oldInnerAlpha),
                           GS_SETREG_RGBA(0xA0, 0xD8, 0xFF, newInnerAlpha));
       newX = oldX;
@@ -581,10 +581,10 @@ static void drawSevenOrbs(int centerX, int centerY, int radiusX, int radiusY,
     const int haloAlpha = 0x13 + (int)(depth / 13.0f);
     const int coreAlpha = 0x50 + (int)(depth / 3.0f);
 
-    drawOrbGlowDisc(x, y, haloRadius,
+    drawOrbGlowDisc(x, y, haloRadius, 6,
                     GS_SETREG_RGBA(0x70, 0xA8, 0xE8, haloAlpha),
                     GS_SETREG_RGBA(0x70, 0xA8, 0xE8, 0));
-    drawOrbGlowDisc(x, y, coreRadius,
+    drawOrbGlowDisc(x, y, coreRadius, 6,
                     GS_SETREG_RGBA(0xE0, 0xF0, 0xFF, coreAlpha),
                     GS_SETREG_RGBA(0xE0, 0xF0, 0xFF, 0));
   }
@@ -663,40 +663,145 @@ void drawSharedLibraryBackground(uint32_t frameNowMs) {
 #endif
 }
 
-static void drawOrbsView(Target *target, int selectedTitleIdx,
-                         int titleCount, uint32_t frameNowMs) {
+static int orbsVisualCacheIndex(int flowOffset) {
+  int closest = ORBS_LOGO_CACHE_FOCUS;
+  int closestDistance = 0x7FFFFFFF;
+  for (int i = 0; i < ORBS_LOGO_CACHE_COUNT; i++) {
+    int position = (i - ORBS_LOGO_CACHE_FOCUS) * 1000 + flowOffset;
+    int distance = position < 0 ? -position : position;
+    if (distance < closestDistance) {
+      closest = i;
+      closestDistance = distance;
+    }
+  }
+  return closest;
+}
+
+static void drawOrbsLogo(GSTEXTURE *texture, float x, float y,
+                         float width, float height, int brightness) {
+  int previousAlphaTest = gsGlobal->Test->ATST;
+  int previousAlphaReference = gsGlobal->Test->AREF;
+  int previousAlphaFail = gsGlobal->Test->AFAIL;
+  gsKit_TexManager_bind(gsGlobal, texture);
+  gsGlobal->PrimAlphaEnable = GS_SETTING_ON;
+  gsGlobal->Test->ATST = 2;
+  gsGlobal->Test->AREF = 0x80;
+  gsGlobal->Test->AFAIL = 0;
+  gsKit_set_primalpha(gsGlobal, GS_BLEND_BACK2FRONT, 0);
+  gsKit_set_test(gsGlobal, GS_ATEST_ON);
+  gsKit_prim_sprite_texture(gsGlobal, texture, x, y, 0.0f, 0.0f,
+                            x + width, y + height,
+                            texture->Width - 1, texture->Height - 1, 6,
+                            GS_SETREG_RGBA(brightness, brightness, brightness, 0x80));
+  gsGlobal->Test->ATST = previousAlphaTest;
+  gsGlobal->Test->AREF = previousAlphaReference;
+  gsGlobal->Test->AFAIL = previousAlphaFail;
+  gsKit_set_test(gsGlobal, GS_ATEST_ON);
+  gsKit_set_primalpha(gsGlobal, GS_SETREG_ALPHA(0, 1, 0, 1, 0), 0);
+}
+
+static void drawOrbsView(TargetList *titles, int selectedTitleIdx,
+                         int flowOffset, int visualFocus, uint32_t now) {
   const int width = gsGlobal->Width;
   const int height = gsGlobal->Height;
-  const int centerY = (headerHeight + height - footerHeight) / 2;
-  const int titleY = height - footerHeight - getFontLineHeight() * 2 - 8;
-  const int titleLeft = keepoutArea + 34;
-  const int titleRight = width - keepoutArea - 34;
-  char selectedTitle[255];
+  const int listTop = headerHeight + 12;
+  const int listBottom = height - footerHeight - 12;
+  const int centerY = (listTop + listBottom) / 2;
+  const int rowPitch = (listBottom - listTop) / 4;
+  const int logoCenterX = width - 153;
+  const int visualTitleIdx = lunaNavWrap(titles->total,
+      selectedTitleIdx + visualFocus - ORBS_LOGO_CACHE_FOCUS);
+  char title[255];
 
-#ifdef LUNA_GLASS_UI
-  // The lights own this view; the shared star and crystal scene stays in the
-  // other four views.
-  const uint64_t top = GS_SETREG_RGBA(0x00, 0x00, 0x04, 0x80);
-  const uint64_t bottom = GS_SETREG_RGBA(0x00, 0x01, 0x08, 0x80);
-  gsKit_prim_quad_gouraud(gsGlobal, 0, 0, width, 0, 0, height, width, height,
-                          0, top, top, bottom, bottom);
-  drawSevenOrbs(width / 2, centerY, width * 21 / 100,
-                (height - headerHeight - footerHeight) * 27 / 100,
-                glassElapsedMs(frameNowMs), 100);
-#else
-  (void)frameNowMs;
-  gsKit_clear(gsGlobal, BGColor);
-#endif
+  if (orbsBackgroundLoaded) {
+    GSTEXTURE *background = orbsBackgroundTexture;
+    gsKit_TexManager_bind(gsGlobal, background);
+    gsGlobal->PrimAlphaEnable = GS_SETTING_OFF;
+    gsKit_prim_sprite_texture(gsGlobal, background, 0.0f, 0.0f,
+                              0.0f, 0.0f, (float)width, (float)height,
+                              background->Width - 1, background->Height - 1, 0,
+                              GS_SETREG_RGBA(0x80, 0x80, 0x80, 0x80));
+    gsGlobal->PrimAlphaEnable = GS_SETTING_ON;
+  }
+
+  // Keep the orbit visible over the art and make a quiet area for the logos.
+  gsKit_set_primalpha(gsGlobal, GS_SETREG_ALPHA(0, 1, 0, 1, 0), 0);
+  gsKit_prim_sprite(gsGlobal, 0, 0, width, height, 1,
+                    GS_SETREG_RGBA(0x00, 0x02, 0x0C, 0x20));
+  gsKit_prim_sprite(gsGlobal, 0, 0, width / 2, height, 2,
+                    GS_SETREG_RGBA(0x02, 0x06, 0x12, 0x26));
+  gsKit_prim_quad_gouraud(gsGlobal, width - 350, 0, width, 0,
+                          width - 350, height, width, height, 2,
+                          GS_SETREG_RGBA(0x02, 0x06, 0x12, 0x08),
+                          GS_SETREG_RGBA(0x02, 0x06, 0x12, 0x72),
+                          GS_SETREG_RGBA(0x02, 0x06, 0x12, 0x08),
+                          GS_SETREG_RGBA(0x02, 0x06, 0x12, 0x72));
+  gsKit_prim_sprite(gsGlobal, 0, 0, width, headerHeight + 3, 3,
+                    GS_SETREG_RGBA(0x02, 0x05, 0x10, 0x4A));
+  gsKit_prim_sprite(gsGlobal, 0, height - footerHeight, width, height, 3,
+                    GS_SETREG_RGBA(0x02, 0x05, 0x10, 0x62));
 
   drawTextWindow(keepoutArea + 10, headerHeight - getFontLineHeight(),
-                 width - keepoutArea, 0, 6, HeaderTextColor, ALIGN_LEFT, "ORBS");
-  formatPSBBNTitle(target->name, selectedTitle, titleRight - titleLeft);
-  drawTextWindow(titleLeft, titleY, titleRight, 0, 8,
-                 FontMainColor, ALIGN_HCENTER, selectedTitle);
-  snprintf(lineBuffer, sizeof(lineBuffer), "%d/%d", selectedTitleIdx + 1,
-           titleCount);
-  drawTextWindow(titleLeft, titleY + getFontLineHeight(), titleRight, 0, 8,
-                 HeaderTextColor, ALIGN_HCENTER, lineBuffer);
+                 width - keepoutArea, 0, 7, FontMainColor, ALIGN_LEFT, "ORBS");
+  snprintf(lineBuffer, sizeof(lineBuffer), "%d/%d", visualTitleIdx + 1,
+           titles->total);
+  drawTextWindow(width - 116, headerHeight - getFontLineHeight(),
+                 width - keepoutArea - 8, 0, 7, FontMainColor,
+                 ALIGN_RIGHT, lineBuffer);
+
+  gsKit_prim_sprite(gsGlobal, width - 283, centerY - 37,
+                    width - 35, centerY + 37, 4,
+                    GS_SETREG_RGBA(0x18, 0x34, 0x58, 0x56));
+  drawOrbitalDisc(width - 20, centerY, 10, 6,
+                  GS_SETREG_RGBA(0xD0, 0xEB, 0xFF, 0x80),
+                  GS_SETREG_RGBA(0x30, 0x8C, 0xD8, 0));
+#ifdef LUNA_GLASS_UI
+  drawSevenOrbs(width * 27 / 100, centerY, width * 20 / 100,
+                (listBottom - listTop) * 36 / 100,
+                glassElapsedMs(now), 100);
+#endif
+
+  for (int i = 0; i < ORBS_LOGO_CACHE_COUNT; i++) {
+    int position = (i - ORBS_LOGO_CACHE_FOCUS) * 1000 + flowOffset;
+    int distance = position < 0 ? -position : position;
+    int targetIdx = lunaNavWrap(titles->total,
+        selectedTitleIdx + i - ORBS_LOGO_CACHE_FOCUS);
+    int duplicate = 0;
+    int proximity;
+    float logoWidth;
+    float logoHeight;
+    float rowY;
+    if (distance > 1350)
+      continue;
+    for (int j = 0; j < ORBS_LOGO_CACHE_COUNT; j++) {
+      int otherPosition = (j - ORBS_LOGO_CACHE_FOCUS) * 1000 + flowOffset;
+      int otherDistance = otherPosition < 0 ? -otherPosition : otherPosition;
+      int otherTarget = lunaNavWrap(titles->total,
+          selectedTitleIdx + j - ORBS_LOGO_CACHE_FOCUS);
+      if (j != i && otherTarget == targetIdx &&
+          (otherDistance < distance || (otherDistance == distance && j < i))) {
+        duplicate = 1;
+        break;
+      }
+    }
+    if (duplicate)
+      continue;
+    proximity = distance < 1000 ? 1000 - distance : 0;
+    logoWidth = 188.0f + 44.0f * lunaNavEase(proximity) / 1000.0f;
+    logoHeight = 62.0f + 14.0f * lunaNavEase(proximity) / 1000.0f;
+    rowY = centerY + position * rowPitch / 1000.0f;
+    if (orbsLogoLoaded[i])
+      drawOrbsLogo(orbsLogoTextures[i], logoCenterX - logoWidth / 2.0f,
+                   rowY - logoHeight / 2.0f, logoWidth, logoHeight,
+                   i == visualFocus ? 0x80 : 0x58);
+    else {
+      formatPSBBNTitle(getTargetByIdx(titles, targetIdx)->name, title, 190);
+      drawTextWindow(width - 270, (int)rowY - getFontLineHeight() / 2,
+                     width - 35, (int)rowY + getFontLineHeight() / 2, 6,
+                     i == visualFocus ? FontMainColor : HeaderTextColor,
+                     ALIGN_CENTER, title);
+    }
+  }
 
   const int footerY = height - footerHeight + 8;
   const int circleX = 26;
@@ -880,6 +985,7 @@ int uiLoop(TargetList *titles) {
   int orbitRandomDirection = 1;
   uint32_t orbitRandomNextStep = 0;
   int orbitRandomButtonHeld = 0;
+  int orbsVisualTitleIdx = -1;
   int favoriteButtonHeld = 0;
   int favoritesTabButtonHeld = 0;
   int favoritesOnly = 0;
@@ -890,6 +996,7 @@ int uiLoop(TargetList *titles) {
   int classicDisplayedDiscAvailable = 0;
   int classicPreviousCoverAvailable = 0;
   int classicArtOverlap = 0;
+  int orbsEnabled = 0;
   uint32_t classicArtDueMs = 0;
   uint32_t classicCoverFadeStartMs = 0;
   LunaNavRepeatState classicRepeat = {0};
@@ -919,6 +1026,9 @@ int uiLoop(TargetList *titles) {
   }
   free(lastTitle);
   view = loadLastLibraryView(curTarget);
+  orbsEnabled = loadOrbsViewEnabled(curTarget);
+  if (view == UI_VIEW_ORBS && !orbsEnabled)
+    view = UI_VIEW_CLASSIC;
   classicArtOverlap = loadClassicArtOverlap(curTarget);
   setClassicArtOverlap(classicArtOverlap);
 
@@ -1011,18 +1121,19 @@ int uiLoop(TargetList *titles) {
       psbbnCoverBaseIdx = collectionMotion.focus;
       drawPSBBNCollection(flowTitles, collectionMotion.focus, psbbnCoverTextures,
                            flowOffset, collectionFavoritesOnly, uiNowMs(), &collectionMotion);
-    } else if (view == UI_VIEW_ORBIT) {
+    } else if (view == UI_VIEW_ORBIT || view == UI_VIEW_ORBS) {
       TargetList *flowTitles = titles;
       int flowSelectedTitleIdx = selectedTitleIdx;
       uint32_t now = uiNowMs();
       int flowOffset;
 
-      // Artwork decode, thumbnail generation, and texture promotion are
-      // synchronous. Finish that work before sampling the animation clock so
-      // the covers and background cannot render from opposite sides of a
-      // loading pause.
-      refreshPSBBNCovers(flowTitles, flowSelectedTitleIdx, psbbnCoverBaseIdx);
-      psbbnCoverBaseIdx = flowSelectedTitleIdx;
+      // Finish synchronous artwork loading before sampling the glide clock.
+      if (view == UI_VIEW_ORBIT) {
+        refreshPSBBNCovers(flowTitles, flowSelectedTitleIdx, psbbnCoverBaseIdx);
+        psbbnCoverBaseIdx = flowSelectedTitleIdx;
+      } else {
+        refreshOrbsLogos(flowTitles, flowSelectedTitleIdx);
+      }
       now = uiNowMs();
 
       if (psbbnAnimationTargetIdx < 0) {
@@ -1049,11 +1160,20 @@ int uiLoop(TargetList *titles) {
       }
 
       flowOffset = lunaNavAnimatedOffset(psbbnAnimationStartOffset, psbbnAnimationStart, psbbnAnimationDuration, now);
-      updatePSBBNCoverResidency(flowOffset);
+      if (view == UI_VIEW_ORBIT)
+        updatePSBBNCoverResidency(flowOffset);
       now = uiNowMs();
       flowOffset = lunaNavAnimatedOffset(psbbnAnimationStartOffset, psbbnAnimationStart, psbbnAnimationDuration, now);
-      drawOrbit(titles, selectedTitleIdx, psbbnCoverTextures, flowOffset,
-                orbitRandomActive, now);
+      if (view == UI_VIEW_ORBIT)
+        drawOrbit(titles, selectedTitleIdx, psbbnCoverTextures, flowOffset,
+                  orbitRandomActive, now);
+      else {
+        int visualFocus = orbsVisualCacheIndex(flowOffset);
+        orbsVisualTitleIdx = lunaNavWrap(titles->total,
+            selectedTitleIdx + visualFocus - ORBS_LOGO_CACHE_FOCUS);
+        refreshOrbsBackground(getTargetByIdx(titles, orbsVisualTitleIdx));
+        drawOrbsView(titles, selectedTitleIdx, flowOffset, visualFocus, now);
+      }
     } else if (view == UI_VIEW_GRID) {
       int didLoadArtwork = 0;
       int gridCascadeProgress = 0;
@@ -1251,8 +1371,6 @@ int uiLoop(TargetList *titles) {
                       gridIncomingPageBase, gridIncomingPageBuffer, gridSelectedActiveBuffer,
                       gridCascadeDirection, gridCascadeProgress, now);
       }
-    } else if (view == UI_VIEW_ORBS) {
-      drawOrbsView(curTarget, selectedTitleIdx, titles->total, uiNowMs());
     } else {
       int favoritesEmpty = favoritesOnly && lunaNavMarkedCount(favoriteFlags, titles->total) == 0;
       const uint32_t frameNowMs = uiNowMs();
@@ -1394,7 +1512,7 @@ int uiLoop(TargetList *titles) {
       }
     }
 
-    if (view == UI_VIEW_PSBBN || view == UI_VIEW_ORBIT) {
+    if (view == UI_VIEW_PSBBN || view == UI_VIEW_ORBIT || view == UI_VIEW_ORBS) {
       // Held navigation starts a new step roughly every 180 ms while each
       // glide lasts 420 ms. The accumulated fractional offset keeps the whole
       // stream continuous while several cover transitions overlap.
@@ -1475,6 +1593,16 @@ int uiLoop(TargetList *titles) {
     if (view == UI_VIEW_GRID && gridFastTrackActive)
       continue;
 
+    // Actions use the logo at the fixed Orbs marker even when the next
+    // queued selection has not finished gliding into place.
+    if (view == UI_VIEW_ORBS && orbsVisualTitleIdx >= 0 &&
+        (input & (PAD_CROSS | PAD_TRIANGLE | PAD_CIRCLE | PAD_START))) {
+      selectedTitleIdx = orbsVisualTitleIdx;
+      curTarget = getTargetByIdx(titles, selectedTitleIdx);
+      psbbnAnimationTargetIdx = -1;
+      psbbnAnimationStartOffset = 0;
+    }
+
     // Any deliberate input interrupts an in-progress random scan and resumes
     // normal manual control immediately. Square below starts a fresh scan.
     if (view == UI_VIEW_ORBIT && orbitRandomActive && (input & ~PAD_SQUARE) != 0)
@@ -1525,7 +1653,7 @@ int uiLoop(TargetList *titles) {
     } else if (input & PAD_CIRCLE) {
       UILibraryView previousView = view;
       int keepSharedPSBBNCache;
-      view = lunaNavNextView(view);
+      view = lunaNavNextView(view, orbsEnabled);
       collectionMotion.initialized = 0;
       // Retain the bounded shared cover cache in EE RAM through Classic and
       // Grid. Filtered ranks belong to a different list and must be discarded.
@@ -1545,6 +1673,8 @@ int uiLoop(TargetList *titles) {
           releasePSBBNCovers();
         else if (view != UI_VIEW_ORBIT)
           releasePSBBNCoverVRAM();
+      } else if (previousView == UI_VIEW_ORBS) {
+        releaseOrbsArt();
       } else if (previousView == UI_VIEW_GRID) {
         releaseGridCovers();
       }
@@ -1753,11 +1883,25 @@ int uiLoop(TargetList *titles) {
                 lunaNavMarkedCount(favoriteFlags, titles->total) > 0)) {
       prevInput = 0; // Reset previous input
       // Enter title options screen
-      if ((res = uiTitleOptionsLoop(curTarget, &classicArtOverlap)) < 0) {
+      if ((res = uiTitleOptionsLoop(curTarget, &classicArtOverlap, &orbsEnabled)) < 0) {
         // Something went wrong, main loop must exit immediately
         freeTargetList(favoriteTitles);
         free(favoriteFlags);
         return -1;
+      }
+      if (view == UI_VIEW_ORBS && !orbsEnabled) {
+        releaseOrbsArt();
+        view = UI_VIEW_CLASSIC;
+        isCoverUninitialized = loadCoverArt(curTarget->device, curTarget->id);
+        isDiscUninitialized = loadDiscArt(curTarget->device, curTarget->id);
+        classicDisplayedCoverAvailable = !isCoverUninitialized;
+        classicDisplayedDiscAvailable = !isDiscUninitialized;
+        classicPreviousCoverAvailable = 0;
+        classicArtRequestedIdx = -1;
+        classicNavHeld = 0;
+        classicRepeat.direction = 0;
+        if (saveLastLibraryView(curTarget, view))
+          DPRINTF("WARN: Could not save selected library view\n");
       }
       optionsTriangleHeld = (pollInput() & PAD_TRIANGLE) != 0;
       input = 0;
@@ -1903,7 +2047,8 @@ static void drawOptionsCategoryFooter(int baseX, OptionsPage page) {
 
 static void drawTitleOptionsFrame(const OptionsBackdrop *backdrop, Target *target,
                                   OptionsPage page, int selectedCategory,
-                                  int pendingOverlap, int activeArgumentIdx,
+                                  int selectedGlobal, int pendingOverlap,
+                                  int pendingOrbs, int activeArgumentIdx,
                                   int saveError, int progress) {
   int baseX = keepoutArea + 10;
   const int lineHeight = getFontLineHeight();
@@ -1938,7 +2083,12 @@ static void drawTitleOptionsFrame(const OptionsBackdrop *backdrop, Target *targe
     snprintf(lineBuffer, sizeof(lineBuffer), "Classic art layout: %s",
              pendingOverlap ? "Overlap" : "Separate");
     drawText(baseX, menuTop, 0, gsGlobal->Width - baseX, 0,
-             ColorSelected, lineBuffer);
+             selectedGlobal == 0 ? ColorSelected : FontMainColor, lineBuffer);
+    snprintf(lineBuffer, sizeof(lineBuffer), "Orbs view (Experimental): %s",
+             pendingOrbs ? "On" : "Off");
+    drawText(baseX, menuTop + lineHeight + lineHeight / 2, 0,
+             gsGlobal->Width - baseX, 0,
+             selectedGlobal == 1 ? ColorSelected : FontMainColor, lineBuffer);
     drawOptionsCategoryFooter(baseX, page);
   } else {
     int focusY = menuTop;
@@ -1971,13 +2121,15 @@ static void drawTitleOptionsFrame(const OptionsBackdrop *backdrop, Target *targe
 
 // Handles the options menu and its per-game and global settings pages.
 // Returns -1 if error occurs
-int uiTitleOptionsLoop(Target *target, int *classicArtOverlap) {
+int uiTitleOptionsLoop(Target *target, int *classicArtOverlap, int *orbsEnabled) {
   int res = 0;
   int saveError = 0;
   int pendingOverlap = *classicArtOverlap;
+  int pendingOrbs = *orbsEnabled;
   int titleArgumentsChanged = 0;
   OptionsPage page = OPTIONS_MENU;
   int selectedCategory = 0;
+  int selectedGlobal = 0;
 
   // Load arguments from config files
   ArgumentList *titleArguments = loadLaunchArgumentLists(target);
@@ -2005,7 +2157,8 @@ int uiTitleOptionsLoop(Target *target, int *classicArtOverlap) {
     progress = elapsed >= OPTIONS_FADE_DURATION_MS
                    ? 1000 : (int)(elapsed * 1000U / OPTIONS_FADE_DURATION_MS);
     drawTitleOptionsFrame(&backdrop, target, page, selectedCategory,
-                          pendingOverlap, activeArgumentIdx, saveError, progress);
+                          selectedGlobal, pendingOverlap, pendingOrbs,
+                          activeArgumentIdx, saveError, progress);
     int heldInput = pollInput();
     if (!(heldInput & PAD_TRIANGLE))
       triangleReleased = 1;
@@ -2019,7 +2172,8 @@ int uiTitleOptionsLoop(Target *target, int *classicArtOverlap) {
   int i;
   while (1) {
     drawTitleOptionsFrame(&backdrop, target, page, selectedCategory,
-                          pendingOverlap, activeArgumentIdx, saveError, 1000);
+                          selectedGlobal, pendingOverlap, pendingOrbs,
+                          activeArgumentIdx, saveError, 1000);
 
     // Process user inputs
     input = waitForInput(-1);
@@ -2038,8 +2192,13 @@ int uiTitleOptionsLoop(Target *target, int *classicArtOverlap) {
       continue;
     }
     if (page == OPTIONS_GLOBAL) {
-      if (input & (PAD_CROSS | PAD_CIRCLE)) {
-        pendingOverlap = !pendingOverlap;
+      if (input & (PAD_UP | PAD_DOWN)) {
+        selectedGlobal = 1 - selectedGlobal;
+      } else if (input & (PAD_CROSS | PAD_CIRCLE)) {
+        if (selectedGlobal == 0)
+          pendingOverlap = !pendingOverlap;
+        else
+          pendingOrbs = !pendingOrbs;
       } else if (input & PAD_START) {
         saveError = 0;
         if (pendingOverlap != *classicArtOverlap) {
@@ -2049,10 +2208,16 @@ int uiTitleOptionsLoop(Target *target, int *classicArtOverlap) {
             setClassicArtOverlap(pendingOverlap);
           }
         }
+        if (!saveError && pendingOrbs != *orbsEnabled) {
+          saveError = saveOrbsViewEnabled(target, pendingOrbs);
+          if (!saveError)
+            *orbsEnabled = pendingOrbs;
+        }
         if (!saveError)
           page = OPTIONS_MENU;
       } else if (input & PAD_TRIANGLE) {
         pendingOverlap = *classicArtOverlap;
+        pendingOrbs = *orbsEnabled;
         saveError = 0;
         page = OPTIONS_MENU;
       }
@@ -2120,7 +2285,8 @@ exit:
       progress = elapsed >= OPTIONS_FADE_DURATION_MS
                      ? 0 : 1000 - (int)(elapsed * 1000U / OPTIONS_FADE_DURATION_MS);
       drawTitleOptionsFrame(&backdrop, target, page, selectedCategory,
-                            pendingOverlap, activeArgumentIdx, 0, progress);
+                            selectedGlobal, pendingOverlap, pendingOrbs,
+                            activeArgumentIdx, 0, progress);
     } while (progress > 0);
   }
   freeArgumentList(titleArguments);

@@ -24,7 +24,6 @@ releases/
 
 .*
 !.clang-format
-!.github
 !.gitignore
 
 CLAUDE.md

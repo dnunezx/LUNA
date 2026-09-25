@@ -6,6 +6,8 @@
 
 #define PSBBN_COVER_CACHE_COUNT 10
 #define PSBBN_COVER_CACHE_FOCUS 3
+#define ORBS_LOGO_CACHE_COUNT 5
+#define ORBS_LOGO_CACHE_FOCUS 2
 #define PSBBN_ANIMATION_DURATION_MS 420
 #define PSBBN_REPEAT_FRAMES_NTSC 11
 #define PSBBN_REPEAT_FRAMES_PAL 9
@@ -85,6 +87,6 @@ int lunaNavMarkedByRank(const uint8_t *marked, int total, int rank);
 int lunaNavMarkedStep(const uint8_t *marked, int total, int index, int direction);
 int lunaNavMarkedPage(const uint8_t *marked, int total, int index, int pageSize,
                       int direction);
-UILibraryView lunaNavNextView(UILibraryView view);
+UILibraryView lunaNavNextView(UILibraryView view, int orbsEnabled);
 
 #endif

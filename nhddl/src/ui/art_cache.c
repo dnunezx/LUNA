@@ -31,9 +31,16 @@ GSTEXTURE *gridCoverTextures[GRID_PAGE_BUFFERS][GRID_PAGE_SIZE];
 uint8_t gridCoverLoaded[GRID_PAGE_BUFFERS][GRID_PAGE_SIZE];
 GSTEXTURE *gridSelectedTextures[GRID_SELECTED_BUFFERS];
 uint8_t gridSelectedLoaded[GRID_SELECTED_BUFFERS];
+GSTEXTURE *orbsLogoTextures[ORBS_LOGO_CACHE_COUNT];
+uint8_t orbsLogoLoaded[ORBS_LOGO_CACHE_COUNT];
+GSTEXTURE *orbsBackgroundTexture;
+uint8_t orbsBackgroundLoaded;
+static int orbsLogoTargets[ORBS_LOGO_CACHE_COUNT];
+static int orbsBackgroundTarget = -1;
 
 static const char artPath[] = "/ART";
 static const char psbbnArtPath[] = "/ART/PSBBN";
+static const char orbsArtPath[] = "/ART/ORBS";
 static char artPathBuffer[255];
 
 int artCacheInit(void) {
@@ -74,6 +81,22 @@ int artCacheInit(void) {
       return -1;
     }
     gridSelectedTextures[buffer]->Delayed = 1;
+  }
+  orbsBackgroundTexture = calloc(sizeof(GSTEXTURE), 1);
+  if (orbsBackgroundTexture == NULL) {
+    artCacheShutdown();
+    return -1;
+  }
+  orbsBackgroundTexture->Delayed = 1;
+  orbsBackgroundTarget = -1;
+  for (int i = 0; i < ORBS_LOGO_CACHE_COUNT; i++) {
+    orbsLogoTextures[i] = calloc(sizeof(GSTEXTURE), 1);
+    if (orbsLogoTextures[i] == NULL) {
+      artCacheShutdown();
+      return -1;
+    }
+    orbsLogoTextures[i]->Delayed = 1;
+    orbsLogoTargets[i] = -1;
   }
   return 0;
 }
@@ -331,6 +354,82 @@ void releaseGridTexture(GSTEXTURE *texture) {
   free(texture->Clut);
   texture->Mem = NULL;
   texture->Clut = NULL;
+}
+
+void releaseOrbsArt(void) {
+  if (orbsBackgroundTexture != NULL)
+    releaseGridTexture(orbsBackgroundTexture);
+  orbsBackgroundLoaded = 0;
+  orbsBackgroundTarget = -1;
+  for (int i = 0; i < ORBS_LOGO_CACHE_COUNT; i++) {
+    if (orbsLogoTextures[i] != NULL)
+      releaseGridTexture(orbsLogoTextures[i]);
+    orbsLogoLoaded[i] = 0;
+    orbsLogoTargets[i] = -1;
+  }
+}
+
+static void loadOrbsLogo(TargetList *titles, int targetIdx, int cacheIdx) {
+  Target *target = getTargetByIdx(titles, targetIdx);
+  struct DeviceMapEntry *device = target->device;
+  GSTEXTURE *texture = orbsLogoTextures[cacheIdx];
+
+  if (device->metadev)
+    device = device->metadev;
+  releaseGridTexture(texture);
+  snprintf(artPathBuffer, sizeof(artPathBuffer), "%s%s/%s_LGO.png",
+           device->mountpoint, orbsArtPath, target->id);
+  orbsLogoLoaded[cacheIdx] =
+      loadPNGTextureRGBA(gsGlobal, texture, artPathBuffer) == 0;
+  if (orbsLogoLoaded[cacheIdx])
+    texture->Filter = GS_FILTER_LINEAR;
+  orbsLogoTargets[cacheIdx] = targetIdx;
+}
+
+void refreshOrbsLogos(TargetList *titles, int selectedTitleIdx) {
+  for (int i = 0; i < ORBS_LOGO_CACHE_COUNT; i++) {
+    int wanted = lunaNavWrap(titles->total,
+                             selectedTitleIdx + i - ORBS_LOGO_CACHE_FOCUS);
+    int match = -1;
+    if (orbsLogoTargets[i] == wanted)
+      continue;
+    for (int j = i + 1; j < ORBS_LOGO_CACHE_COUNT; j++) {
+      if (orbsLogoTargets[j] == wanted) {
+        match = j;
+        break;
+      }
+    }
+    if (match >= 0) {
+      GSTEXTURE *texture = orbsLogoTextures[i];
+      uint8_t loaded = orbsLogoLoaded[i];
+      int target = orbsLogoTargets[i];
+      orbsLogoTextures[i] = orbsLogoTextures[match];
+      orbsLogoLoaded[i] = orbsLogoLoaded[match];
+      orbsLogoTargets[i] = orbsLogoTargets[match];
+      orbsLogoTextures[match] = texture;
+      orbsLogoLoaded[match] = loaded;
+      orbsLogoTargets[match] = target;
+    } else {
+      loadOrbsLogo(titles, wanted, i);
+    }
+  }
+}
+
+void refreshOrbsBackground(Target *target) {
+  struct DeviceMapEntry *device;
+  if (orbsBackgroundTarget == target->idx)
+    return;
+  device = target->device;
+  if (device->metadev)
+    device = device->metadev;
+  releaseGridTexture(orbsBackgroundTexture);
+  snprintf(artPathBuffer, sizeof(artPathBuffer), "%s%s/%s_BG.png",
+           device->mountpoint, orbsArtPath, target->id);
+  orbsBackgroundLoaded =
+      loadPNGTextureRGBA(gsGlobal, orbsBackgroundTexture, artPathBuffer) == 0;
+  if (orbsBackgroundLoaded)
+    orbsBackgroundTexture->Filter = GS_FILTER_LINEAR;
+  orbsBackgroundTarget = target->idx;
 }
 
 static int loadGridCoverArt(struct DeviceMapEntry *device, char *titleID, GSTEXTURE *texture, int thumbnail) {
@@ -677,6 +776,24 @@ void prepareCollectionCovers(TargetList *titles, int focus) {
 
 
 void artCacheShutdown(void) {
+  if (orbsBackgroundTexture != NULL) {
+    free(orbsBackgroundTexture->Mem);
+    free(orbsBackgroundTexture->Clut);
+    free(orbsBackgroundTexture);
+    orbsBackgroundTexture = NULL;
+  }
+  orbsBackgroundLoaded = 0;
+  orbsBackgroundTarget = -1;
+  for (int i = 0; i < ORBS_LOGO_CACHE_COUNT; i++) {
+    if (orbsLogoTextures[i] != NULL) {
+      free(orbsLogoTextures[i]->Mem);
+      free(orbsLogoTextures[i]->Clut);
+      free(orbsLogoTextures[i]);
+      orbsLogoTextures[i] = NULL;
+    }
+    orbsLogoLoaded[i] = 0;
+    orbsLogoTargets[i] = -1;
+  }
   if (coverTexture != NULL) {
     free(coverTexture->Mem);
     free(coverTexture->Clut);
