@@ -8,7 +8,7 @@ LUNA (Lightweight Unified Neutrino Access) is a visual PlayStation 2 game loader
 
 LUNA retains NHDDL's Neutrino-launching core: it scans MMCE, APA or _FAT/exFAT-formatted_ BDM devices for ISO files, lists them, and boots the selected ISO via Neutrino. It adds LUNA branding, five PS2 Glass library views, paired cover/disc artwork, PSBBN artwork, and direct in-game return.
 
-This designation does not replace the physical-console safety gates documented in [`../PROJECT.md`](../PROJECT.md). No Git tag or hosted release is implied by the local RC label.
+The local Release Candidate label does not imply a Git tag or hosted release. See the [repository README](../README.md#installation) for installation steps.
 
 It displays visual Game ID to trigger per-title settings on the Pixel FX line of products and triggers per-title memory cards on SD2PSX and MemCard PRO2.
 
@@ -26,10 +26,12 @@ Since NHDDL only launches Neutrino, PADEMU, IGR, IGS, cheats and other features 
 
 Press **Triangle** to open the options menu. **Per-game settings** opens the
 selected game's launch controls; **Global settings** contains **Classic art
-layout**. Press **Cross** or **Circle** to switch between **Separate** (cover
+layout** and **Orbs view (Experimental)**. Select a setting and press **Cross**
+or **Circle** to change it. Classic art layout switches between **Separate** (cover
 above the disc) and **Overlap** (cover in front of the disc's lower half), then
 press **Start** to save. The layout applies to Classic for the whole library on
-that drive. **Triangle** cancels an unsaved change and returns to the menu.
+that drive. Orbs is off by default; enabling it adds Orbs to the Circle view
+cycle. **Triangle** cancels an unsaved change and returns to the menu.
 
 In Luna's Collection view, tap Left/Up or Right/Down to move one cover, or hold
 to browse. Hold L2/R2 to fast scan after a brief pause. Quick L2/R2 presses and

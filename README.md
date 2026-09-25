@@ -180,7 +180,7 @@ both the NHDDL-derived frontend and the Neutrino-derived game runtime.
 | Collection view | A PSBBN-inspired cover flow with animated focus changes and a Collection/Favorites filter. |
 | Grid view | A 4x4 artwork grid with paged caching, row-cascade transitions, large selected-cover preview, and fast-track shoulder navigation. |
 | Orbit view | A depth-sorted ring of covers with perspective, fading, shared artwork caching, and a Square-button Random Scan that avoids reselecting the current title. |
-| Orbs view | Seven spinning lights with fading trails, centered on a dark screen without artwork. |
+| Orbs view | An experimental view with seven spinning lights and optional logo and background artwork; disabled by default. |
 | Favorites | Per-drive Favorites stored in `/LUNA/favorites.txt`, shared by Classic and Collection without modifying the game library. |
 | Artwork | OPL-compatible covers plus optional disc labels and PSBBN-style square artwork, with view-specific caching and GS VRAM recovery. |
 | Configured storage scan | The library scans ATA and HDL when available. USB, MX4SIO, MMCE, iLink, and UDPFS require explicit `mode:` entries. The shipped configuration uses internal ATA/exFAT and avoids waiting for a nonexistent second mass-storage device. |
@@ -192,11 +192,13 @@ both the NHDDL-derived frontend and the Neutrino-derived game runtime.
 
 ## Library views and controls
 
-Press **Circle** to cycle through **Classic**, **Collection**, **Grid**, **Orbit**, and **Orbs**.
+Press **Circle** to cycle through **Classic**, **Collection**, **Grid**, and **Orbit**.
+To add **Orbs** to the cycle, open **Options → Global settings**, switch
+**Orbs view (Experimental)** to **On**, and press **Start** to save.
 
 ### Views in motion
 
-The four artwork views are shown below. The previews use sample game artwork.
+The four default views are shown below. The previews use sample game artwork.
 
 <table>
   <tr>
@@ -209,8 +211,8 @@ The four artwork views are shown below. The previews use sample game artwork.
   </tr>
 </table>
 
-The **Orbs** view centers the spinning lights and their trails. The selected
-game name and controls remain below the animation; this view needs no artwork.
+The **Orbs** view shows spinning lights and their trails alongside the selected
+game. Optional logo and background artwork can be added for each title.
 
 - **Cross:** launch the selected game.
 - **Triangle:** open the options menu, with **Per-game settings** first and
@@ -219,6 +221,8 @@ game name and controls remain below the animation; this view needs no artwork.
   on **Classic art layout** to choose Separate or Overlap, then press **Start**
   to save. Overlap places the spinning disc behind the cover, with its lower
   half hidden. The choice is saved for the library on that drive.
+- **Orbs view:** choose **Global settings**, select **Orbs view (Experimental)**,
+  press **Cross** or **Circle** to turn it on or off, then press **Start** to save.
 - **Start:** exit the library.
 - **Square in Classic:** add or remove the selected game from Favorites.
 - **Select in Classic or Collection:** switch between the full library and
@@ -243,6 +247,8 @@ LUNA continues to use OPL-compatible title IDs and PNG artwork names:
 /ART/<TITLE_ID>_COV.png       140x200 cover used by Classic
 /ART/<TITLE_ID>_ICO.png       optional 64x64 transparent disc label used by Classic
 /ART/PSBBN/<TITLE_ID>.png     optional 256x256 square artwork for Collection, Grid, and Orbit
+/ART/ORBS/<TITLE_ID>_LGO.png  optional logo for Orbs
+/ART/ORBS/<TITLE_ID>_BG.png   optional background for Orbs
 ```
 
 Use
@@ -266,6 +272,8 @@ Writable state stays with the game drive:
 /LUNA/cache.bin
 /LUNA/lastTitle.bin
 /LUNA/lastView.txt
+/LUNA/classicLayout.txt
+/LUNA/orbsView.txt
 /LUNA/favorites.txt
 /LUNA/global.yaml
 /LUNA/<game name>.yaml
@@ -273,7 +281,8 @@ Writable state stays with the game drive:
 
 LUNA saves the selected library view as `lastView.txt` whenever Circle switches
 views and restores it on the next start. A missing or invalid file starts in
-Classic. Swapping hard drives also swaps their library, artwork, Favorites,
+Classic. A saved Orbs view also starts in Classic while Orbs is disabled.
+Swapping hard drives also swaps their library, artwork, Favorites,
 saved view, cache, and per-game configuration. Existing `/nhddl` cache and
 option files can still be read for migration, but new writes go to `/LUNA`.
 
@@ -281,12 +290,12 @@ option files can still be read for migration, but new writes go to `/LUNA`.
 
 - `nhddl/`: LUNA's modified NHDDL-derived frontend.
 - `neutrino/`: LUNA's modified Neutrino-derived backend.
-- `tools/`: local build, FMCB packaging, and package-verification helpers.
+- `tools/`: local build and FMCB packaging helpers.
 - `LICENSES/`: licenses retained from upstream projects and dependencies.
 
-See [UPSTREAM.md](UPSTREAM.md) for exact source lineage,
-[AUTHORS.md](AUTHORS.md) for attribution, [BUILDING.md](BUILDING.md) for local
-build instructions, and [FMCB.md](FMCB.md) for the installation layout.
+See [UPSTREAM.md](UPSTREAM.md) for exact source lineage and
+[AUTHORS.md](AUTHORS.md) for attribution. Installation steps are in the
+[Installation](#installation) section above.
 
 ## Repository contents
 
