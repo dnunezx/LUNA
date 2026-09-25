@@ -9,4 +9,9 @@
 UILibraryView loadLastLibraryView(Target *target);
 int saveLastLibraryView(Target *target, UILibraryView view);
 
+// Classic artwork layout is a library-wide preference on the metadata drive.
+// Missing or invalid state keeps the original separate cover and disc layout.
+int loadClassicArtOverlap(Target *target);
+int saveClassicArtOverlap(Target *target, int overlap);
+
 #endif

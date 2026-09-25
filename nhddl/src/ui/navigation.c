@@ -360,5 +360,5 @@ int lunaNavMarkedPage(const uint8_t *marked, int total, int index, int pageSize,
 }
 
 UILibraryView lunaNavNextView(UILibraryView view) {
-  return (UILibraryView)((view + 1) % 4);
+  return (UILibraryView)((view + 1) % (UI_VIEW_ORBS + 1));
 }

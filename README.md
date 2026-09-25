@@ -175,11 +175,12 @@ both the NHDDL-derived frontend and the Neutrino-derived game runtime.
 
 | Area | LUNA addition |
 | --- | --- |
-| Library interface | A PS2-inspired glass interface with an animated star field, crystal elements, LUNA branding, and four switchable library views. |
+| Library interface | A PS2-inspired glass interface with animated stars and crystals, LUNA branding, and five switchable library views. |
 | Classic view | A refined list-and-cover layout with a rotating disc label, Favorites controls, and paired cover/disc artwork. |
 | Collection view | A PSBBN-inspired cover flow with animated focus changes and a Collection/Favorites filter. |
 | Grid view | A 4x4 artwork grid with paged caching, row-cascade transitions, large selected-cover preview, and fast-track shoulder navigation. |
 | Orbit view | A depth-sorted ring of covers with perspective, fading, shared artwork caching, and a Square-button Random Scan that avoids reselecting the current title. |
+| Orbs view | Seven spinning lights with fading trails, centered on a dark screen without artwork. |
 | Favorites | Per-drive Favorites stored in `/LUNA/favorites.txt`, shared by Classic and Collection without modifying the game library. |
 | Artwork | OPL-compatible covers plus optional disc labels and PSBBN-style square artwork, with view-specific caching and GS VRAM recovery. |
 | Configured storage scan | The library scans ATA and HDL when available. USB, MX4SIO, MMCE, iLink, and UDPFS require explicit `mode:` entries. The shipped configuration uses internal ATA/exFAT and avoids waiting for a nonexistent second mass-storage device. |
@@ -191,11 +192,11 @@ both the NHDDL-derived frontend and the Neutrino-derived game runtime.
 
 ## Library views and controls
 
-Press **Circle** to cycle through **Classic**, **Collection**, **Grid**, and **Orbit**.
+Press **Circle** to cycle through **Classic**, **Collection**, **Grid**, **Orbit**, and **Orbs**.
 
 ### Views in motion
 
-The four library views are shown below. The previews use sample game artwork.
+The four artwork views are shown below. The previews use sample game artwork.
 
 <table>
   <tr>
@@ -208,9 +209,17 @@ The four library views are shown below. The previews use sample game artwork.
   </tr>
 </table>
 
+The **Orbs** view centers the spinning lights and their trails. The selected
+game name and controls remain below the animation; this view needs no artwork.
+
 - **Cross:** launch the selected game.
-- **Triangle:** open the selected game's options.
-- **Start:** open global options.
+- **Triangle:** open the options menu, with **Per-game settings** first and
+  **Global settings** second.
+- **Classic layout:** choose **Global settings**, press **Cross** or **Circle**
+  on **Classic art layout** to choose Separate or Overlap, then press **Start**
+  to save. Overlap places the spinning disc behind the cover, with its lower
+  half hidden. The choice is saved for the library on that drive.
+- **Start:** exit the library.
 - **Square in Classic:** add or remove the selected game from Favorites.
 - **Select in Classic or Collection:** switch between the full library and
   Favorites.
@@ -233,7 +242,7 @@ LUNA continues to use OPL-compatible title IDs and PNG artwork names:
 ```text
 /ART/<TITLE_ID>_COV.png       140x200 cover used by Classic
 /ART/<TITLE_ID>_ICO.png       optional 64x64 transparent disc label used by Classic
-/ART/PSBBN/<TITLE_ID>.png     optional 256x256 square artwork for other views
+/ART/PSBBN/<TITLE_ID>.png     optional 256x256 square artwork for Collection, Grid, and Orbit
 ```
 
 Use

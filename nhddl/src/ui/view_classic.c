@@ -8,6 +8,7 @@
 #define COVER_ART_MAX_WIDTH 140
 #define COVER_ART_LOWER_RESERVE 96
 #define COVER_ART_VERTICAL_OFFSET -4
+#define OVERLAP_LAYOUT_VERTICAL_OFFSET -8
 #define DISC_ART_SIZE 112
 #define DISC_ROTATION_PERIOD_MS 30000
 #define CLASSIC_SELECTION_GLOW_DURATION_MS 110
@@ -24,6 +25,7 @@ static int discArtX2;
 static int discArtY2;
 static int discArtX1;
 static int discArtY1;
+static int classicArtOverlap;
 
 #ifdef LUNA_GLASS_UI
 static void drawClassicGlowLayer(int centerX, int centerY, int radiusX, int radiusY,
@@ -179,23 +181,36 @@ void calculateCoverArtGeometry(void) {
   if (coverWidth > COVER_ART_MAX_WIDTH)
     coverWidth = COVER_ART_MAX_WIDTH;
   coverHeight = (coverWidth * COVER_ART_RATIO_H) / COVER_ART_RATIO_W;
-  // Keep the approved cover position independent from later disc-size polish.
-  stackHeight = coverHeight + COVER_ART_LOWER_RESERVE;
-  stackTop = top + (availableHeight - stackHeight) / 2;
-
   coverArtX2 = gsGlobal->Width - keepoutArea - 10;
   coverArtX1 = coverArtX2 - coverWidth;
-  coverArtY1 = stackTop + COVER_ART_VERTICAL_OFFSET;
-  coverArtY2 = coverArtY1 + coverHeight;
   discArtX1 = (coverArtX1 + coverArtX2 - DISC_ART_SIZE) / 2;
   discArtX2 = discArtX1 + DISC_ART_SIZE;
-  // Center the disc in the space below the raised cover so its outer glow has
-  // equal breathing room from the cover frame and the lower panel border.
-  const int classicPanelBottom = gsGlobal->Height - footerHeight + 2;
-  discArtY1 = (coverArtY2 + classicPanelBottom - DISC_ART_SIZE) / 2;
+  if (classicArtOverlap) {
+    // Keep the cover at its established overlap position in NTSC and PAL,
+    // then lower only the disc so the cover hides its bottom half.
+    const int coverAnchorHeight = DISC_ART_SIZE * 2 / 3;
+    stackHeight = coverAnchorHeight + coverHeight;
+    stackTop = top + (availableHeight - stackHeight) / 2 + COVER_ART_VERTICAL_OFFSET +
+               OVERLAP_LAYOUT_VERTICAL_OFFSET;
+    coverArtY1 = stackTop + coverAnchorHeight;
+    discArtY1 = coverArtY1 - DISC_ART_SIZE / 2;
+  } else {
+    // Preserve the original positions exactly when the setting is off.
+    stackHeight = coverHeight + COVER_ART_LOWER_RESERVE;
+    stackTop = top + (availableHeight - stackHeight) / 2;
+    coverArtY1 = stackTop + COVER_ART_VERTICAL_OFFSET;
+    const int classicPanelBottom = gsGlobal->Height - footerHeight + 2;
+    discArtY1 = (coverArtY1 + coverHeight + classicPanelBottom - DISC_ART_SIZE) / 2;
+  }
+  coverArtY2 = coverArtY1 + coverHeight;
   discArtY2 = discArtY1 + DISC_ART_SIZE;
 }
 
+void setClassicArtOverlap(int overlap) {
+  classicArtOverlap = overlap != 0;
+  if (gsGlobal != NULL)
+    calculateCoverArtGeometry();
+}
 
 
 void drawTitleListFooter(int baseX) {
@@ -266,22 +281,25 @@ static void drawClassicDisc(GSTEXTURE *disc, uint32_t frameNowMs) {
   const int centerX = (discArtX1 + discArtX2) / 2;
   const int centerY = (discArtY1 + discArtY2) / 2;
   const int radius = DISC_ART_SIZE / 2;
+  const int outlineZ = classicArtOverlap ? 3 : 4;
+  const int textureZ = classicArtOverlap ? 4 : 6;
 
   gsGlobal->PrimAlphaEnable = GS_SETTING_ON;
   if (disc == NULL) {
     // Missing artwork stays source-truthful: a quiet empty disc, not a cover crop
     // or a generic label that could be mistaken for the selected game's art.
-    drawDiscOutline(centerX, centerY, radius, 5, GS_SETREG_RGBA(0x70, 0xB8, 0xD8, 0x22));
-    drawDiscOutline(centerX, centerY, 7, 5, GS_SETREG_RGBA(0x90, 0xD0, 0xE8, 0x1C));
+    drawDiscOutline(centerX, centerY, radius, classicArtOverlap ? 4 : 5, GS_SETREG_RGBA(0x70, 0xB8, 0xD8, 0x22));
+    drawDiscOutline(centerX, centerY, 7, classicArtOverlap ? 4 : 5, GS_SETREG_RGBA(0x90, 0xD0, 0xE8, 0x1C));
     return;
   }
 
 #ifdef LUNA_GLASS_UI
-  drawOrbitalDisc(centerX, centerY, radius + 8, 3, GS_SETREG_RGBA(0x44, 0xB8, 0xF0, 0x0D),
+  drawOrbitalDisc(centerX, centerY, radius + 8, classicArtOverlap ? 2 : 3,
+                  GS_SETREG_RGBA(0x44, 0xB8, 0xF0, 0x0D),
                   GS_SETREG_RGBA(0x28, 0x68, 0xB0, 0x02));
 #endif
-  drawDiscOutline(centerX, centerY, radius + 5, 4, GS_SETREG_RGBA(0x78, 0xD8, 0xFF, 0x20));
-  drawDiscOutline(centerX, centerY, radius + 2, 4, GS_SETREG_RGBA(0x38, 0x88, 0xC8, 0x18));
+  drawDiscOutline(centerX, centerY, radius + 5, outlineZ, GS_SETREG_RGBA(0x78, 0xD8, 0xFF, 0x20));
+  drawDiscOutline(centerX, centerY, radius + 2, outlineZ, GS_SETREG_RGBA(0x38, 0x88, 0xC8, 0x18));
 
   const uint32_t phase = discRotationPhase(frameNowMs);
   const float sine = (float)discWave(phase) / 127.0f;
@@ -311,7 +329,7 @@ static void drawClassicDisc(GSTEXTURE *disc, uint32_t frameNowMs) {
   gsKit_set_test(gsGlobal, GS_ATEST_ON);
   gsKit_prim_quad_texture(gsGlobal, disc, upperLeftX, upperLeftY, 0.0f, 0.0f, upperRightX, upperRightY, disc->Width - 1, 0.0f,
                           lowerLeftX, lowerLeftY, 0.0f, disc->Height - 1, lowerRightX, lowerRightY, disc->Width - 1,
-                          disc->Height - 1, 6, GS_SETREG_RGBA(0x80, 0x80, 0x80, 0x80));
+                          disc->Height - 1, textureZ, GS_SETREG_RGBA(0x80, 0x80, 0x80, 0x80));
   gsGlobal->Test->ATST = previousAlphaTest;
   gsGlobal->Test->AREF = previousAlphaReference;
   gsGlobal->Test->AFAIL = previousAlphaFail;
@@ -479,29 +497,38 @@ void drawTitleList(TargetList *titles, int selectedTitleIdx, int maxTitlesPerPag
     curTitle = curTitle->next;
   }
 
+  if (classicArtOverlap)
+    drawClassicDisc(selectedTitleDisc, frameNowMs);
+
   // The glass layout leaves artwork unframed; the legacy skin keeps its edge.
 #ifndef LUNA_GLASS_UI
-  gsKit_prim_sprite(gsGlobal, coverArtX1 - 2, coverArtY1 - 2, coverArtX2 + 2, coverArtY2 + 2, 1, FontMainColor);
+  gsKit_prim_sprite(gsGlobal, coverArtX1 - 2, coverArtY1 - 2, coverArtX2 + 2, coverArtY2 + 2,
+                    classicArtOverlap ? 5 : 1, FontMainColor);
 #endif
 
   // Keep the outgoing cover in place while the next PNG is decoded. Once it
   // arrives, blend between the two resident textures rather than flashing a
   // missing-art message between selections.
 #ifdef LUNA_GLASS_UI
-  const int coverTextureZ = 5;
+  const int coverTextureZ = classicArtOverlap ? 6 : 5;
 #else
-  const int coverTextureZ = 2;
+  const int coverTextureZ = classicArtOverlap ? 6 : 2;
 #endif
   if (selectedTitleCover == NULL) {
 #ifdef LUNA_GLASS_UI
-    gsKit_prim_sprite(gsGlobal, coverArtX1, coverArtY1, coverArtX2, coverArtY2, 5, GS_SETREG_RGBA(0x04, 0x0C, 0x20, 0x60));
-    drawGlassDiamond((coverArtX1 + coverArtX2) / 2, (coverArtY1 + coverArtY2) / 2 - 12, 24, 6,
+    gsKit_prim_sprite(gsGlobal, coverArtX1, coverArtY1, coverArtX2, coverArtY2,
+                      classicArtOverlap ? 6 : 5, GS_SETREG_RGBA(0x04, 0x0C, 0x20, 0x60));
+    drawGlassDiamond((coverArtX1 + coverArtX2) / 2, (coverArtY1 + coverArtY2) / 2 - 12, 24,
+                     classicArtOverlap ? 7 : 6,
                      GS_SETREG_RGBA(0x70, 0xD8, 0xFF, 0x48));
-    drawTextWindow(coverArtX1, coverArtY1, coverArtX2, coverArtY2 + 44, 6, HeaderTextColor, ALIGN_CENTER,
+    drawTextWindow(coverArtX1, coverArtY1, coverArtX2, coverArtY2 + 44,
+                   classicArtOverlap ? 7 : 6, HeaderTextColor, ALIGN_CENTER,
                    coverPending ? "LOADING\nCOVER" : "COVER\nUNAVAILABLE");
 #else
-    gsKit_prim_sprite(gsGlobal, coverArtX1, coverArtY1, coverArtX2, coverArtY2, 1, BGColor);
-    drawTextWindow(coverArtX1, coverArtY1, coverArtX2, coverArtY2, 1, FontMainColor, ALIGN_CENTER,
+    gsKit_prim_sprite(gsGlobal, coverArtX1, coverArtY1, coverArtX2, coverArtY2,
+                      classicArtOverlap ? 6 : 1, BGColor);
+    drawTextWindow(coverArtX1, coverArtY1, coverArtX2, coverArtY2,
+                   classicArtOverlap ? 7 : 1, FontMainColor, ALIGN_CENTER,
                    coverPending ? "Loading cover" : "No cover art");
 #endif
   }
@@ -517,5 +544,6 @@ void drawTitleList(TargetList *titles, int selectedTitleIdx, int maxTitlesPerPag
     drawClassicCoverTexture(selectedTitleCover, 1000, coverTextureZ);
   }
 
-  drawClassicDisc(selectedTitleDisc, frameNowMs);
+  if (!classicArtOverlap)
+    drawClassicDisc(selectedTitleDisc, frameNowMs);
 }

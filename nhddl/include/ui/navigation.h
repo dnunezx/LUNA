@@ -61,6 +61,7 @@ typedef enum {
   UI_VIEW_PSBBN = 1,
   UI_VIEW_GRID = 2,
   UI_VIEW_ORBIT = 3,
+  UI_VIEW_ORBS = 4,
 } UILibraryView;
 
 int lunaNavWrap(int total, int index);

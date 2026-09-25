@@ -8,6 +8,7 @@
 #include <stdint.h>
 
 void calculateCoverArtGeometry(void);
+void setClassicArtOverlap(int overlap);
 void drawTitleList(TargetList *titles, int selectedTitleIdx, int maxTitlesPerPage,
                    GSTEXTURE *selectedTitleCover, GSTEXTURE *previousCover,
                    GSTEXTURE *selectedTitleDisc, const uint8_t *favoriteFlags,
