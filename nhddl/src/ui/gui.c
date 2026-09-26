@@ -948,8 +948,10 @@ int uiLoop(TargetList *titles) {
   int psbbnAnimationStartOffset = 0;
   uint32_t psbbnAnimationStart = 0;
   uint32_t psbbnAnimationDuration = PSBBN_ANIMATION_DURATION_MS;
-  LunaCollectionMotion collectionMotion = {0};
-  uint32_t collectionLastArtMs = 0;
+  LunaCollectionScan collectionScan = {0};
+  int collectionVisualTitleIdx = -1;
+  int collectionVisualCoverIdx = PSBBN_COVER_CACHE_FOCUS;
+  int collectionActionCoverIdx = PSBBN_COVER_CACHE_FOCUS;
   int gridActivePageBuffer = 0;
   int gridIncomingPageBuffer = -1;
   int gridPreviousPageBuffer = -1;
@@ -1098,38 +1100,28 @@ int uiLoop(TargetList *titles) {
       classicArtRequestedIdx = -1;
     }
 
-    if (view == UI_VIEW_PSBBN) {
-      TargetList *flowTitles = collectionFavoritesOnly ? favoriteTitles : titles;
-      if (!collectionMotion.initialized) {
-        int rank = collectionFavoritesOnly
-                     ? lunaNavMarkedRank(favoriteFlags, titles->total, selectedTitleIdx)
-                     : selectedTitleIdx;
-        lunaCollectionReset(&collectionMotion, rank < 0 ? 0 : rank, uiNowMs());
-        prepareCollectionCovers(flowTitles, collectionMotion.focus);
-        collectionMotion.lastMs = uiNowMs();
-      }
-      int flowOffset = lunaCollectionOffset(&collectionMotion);
-      int fast = collectionMotion.mode == COLLECTION_SCAN;
-      uint32_t now = uiNowMs();
-      // Scan remains responsive even on cold storage. During ordinary motion
-      // prepare at most one cover every 90 ms; idle fills one slot per frame.
-      int allowLoad = !fast && !(collectionMotion.scanHeld && collectionMotion.direction) &&
-                      (collectionMotion.mode == COLLECTION_IDLE || now - collectionLastArtMs >= 90);
-      if (refreshCollectionCovers(flowTitles, collectionMotion.focus, flowOffset,
-                                  collectionMotion.travelDirection, allowLoad, fast))
-        collectionLastArtMs = uiNowMs();
-      psbbnCoverBaseIdx = collectionMotion.focus;
-      drawPSBBNCollection(flowTitles, collectionMotion.focus, psbbnCoverTextures,
-                           flowOffset, collectionFavoritesOnly, uiNowMs(), &collectionMotion);
-    } else if (view == UI_VIEW_ORBIT || view == UI_VIEW_ORBS) {
-      TargetList *flowTitles = titles;
-      int flowSelectedTitleIdx = selectedTitleIdx;
+    if (view == UI_VIEW_PSBBN || view == UI_VIEW_ORBIT || view == UI_VIEW_ORBS) {
+      TargetList *flowTitles = (view == UI_VIEW_PSBBN && collectionFavoritesOnly) ? favoriteTitles : titles;
+      int flowSelectedTitleIdx = (view == UI_VIEW_PSBBN && collectionFavoritesOnly)
+                                     ? lunaNavMarkedRank(favoriteFlags, titles->total, selectedTitleIdx)
+                                     : selectedTitleIdx;
       uint32_t now = uiNowMs();
       int flowOffset;
 
+      if (view == UI_VIEW_PSBBN && flowTitles->total <= 0) {
+        if (psbbnCoverBaseIdx >= 0)
+          releasePSBBNCovers();
+        psbbnCoverBaseIdx = -1;
+        psbbnAnimationTargetIdx = -1;
+        psbbnAnimationStartOffset = 0;
+        drawPSBBNCollection(flowTitles, 0, psbbnCoverTextures, 0, collectionFavoritesOnly, now);
+        goto library_view_drawn;
+      }
+
       // Finish synchronous artwork loading before sampling the glide clock.
-      if (view == UI_VIEW_ORBIT) {
-        refreshPSBBNCovers(flowTitles, flowSelectedTitleIdx, psbbnCoverBaseIdx);
+      if (view != UI_VIEW_ORBS) {
+        if (psbbnCoverBaseIdx != flowSelectedTitleIdx)
+          refreshPSBBNCovers(flowTitles, flowSelectedTitleIdx, psbbnCoverBaseIdx);
         psbbnCoverBaseIdx = flowSelectedTitleIdx;
       } else {
         refreshOrbsLogos(flowTitles, flowSelectedTitleIdx);
@@ -1145,7 +1137,10 @@ int uiLoop(TargetList *titles) {
         int currentOffset = lunaNavAnimatedOffset(psbbnAnimationStartOffset, psbbnAnimationStart, psbbnAnimationDuration, now);
         int direction = lunaNavDirection(flowTitles->total, psbbnAnimationTargetIdx, flowSelectedTitleIdx);
         psbbnAnimationStartOffset = currentOffset + direction * 1000;
-        if (currentOffset * direction < 0) {
+        if (view == UI_VIEW_PSBBN && collectionScan.active) {
+          psbbnAnimationStartOffset = collectionScan.heldDirection * 1000;
+          psbbnAnimationDuration = COLLECTION_SCAN_STEP_MS;
+        } else if (currentOffset * direction < 0) {
           int reversalDistance = (psbbnAnimationStartOffset < 0) ? -psbbnAnimationStartOffset : psbbnAnimationStartOffset;
           if (reversalDistance > 1000)
             reversalDistance = 1000;
@@ -1160,11 +1155,24 @@ int uiLoop(TargetList *titles) {
       }
 
       flowOffset = lunaNavAnimatedOffset(psbbnAnimationStartOffset, psbbnAnimationStart, psbbnAnimationDuration, now);
-      if (view == UI_VIEW_ORBIT)
+      if (view != UI_VIEW_ORBS)
         updatePSBBNCoverResidency(flowOffset);
       now = uiNowMs();
       flowOffset = lunaNavAnimatedOffset(psbbnAnimationStartOffset, psbbnAnimationStart, psbbnAnimationDuration, now);
-      if (view == UI_VIEW_ORBIT)
+      if (view == UI_VIEW_PSBBN) {
+        collectionVisualCoverIdx = PSBBN_COVER_CACHE_FOCUS;
+        if (flowOffset >= 500)
+          collectionVisualCoverIdx--;
+        else if (flowOffset < -500)
+          collectionVisualCoverIdx++;
+        int visualRank = lunaNavWrap(flowTitles->total, flowSelectedTitleIdx +
+                                    collectionVisualCoverIdx - PSBBN_COVER_CACHE_FOCUS);
+        collectionVisualTitleIdx = collectionFavoritesOnly
+                                      ? lunaNavMarkedByRank(favoriteFlags, titles->total, visualRank)
+                                      : visualRank;
+        drawPSBBNCollection(flowTitles, flowSelectedTitleIdx, psbbnCoverTextures,
+                            flowOffset, collectionFavoritesOnly, now);
+      } else if (view == UI_VIEW_ORBIT)
         drawOrbit(titles, selectedTitleIdx, psbbnCoverTextures, flowOffset,
                   orbitRandomActive, now);
       else {
@@ -1389,6 +1397,7 @@ int uiLoop(TargetList *titles) {
                     coverFadeProgress, frameNowMs);
     }
 
+  library_view_drawn:
     gsKit_queue_exec(gsGlobal);
     gsKit_finish();
     gsKit_sync_flip(gsGlobal);
@@ -1525,37 +1534,29 @@ int uiLoop(TargetList *titles) {
 
     if (view == UI_VIEW_PSBBN) {
       const int rawInput = input;
-      const int navButtons = PAD_LEFT | PAD_RIGHT | PAD_UP | PAD_DOWN |
-                             PAD_L1 | PAD_R1 | PAD_L2 | PAD_R2;
-      int left = (rawInput & (PAD_LEFT | PAD_UP)) != 0;
-      int right = (rawInput & (PAD_RIGHT | PAD_DOWN)) != 0;
-      int scanHeld = (rawInput & (PAD_L2 | PAD_R2)) != 0;
-      if (scanHeld) {
-        left = (rawInput & PAD_L2) != 0;
-        right = (rawInput & PAD_R2) != 0;
+      const int actionButtons = PAD_CROSS | PAD_TRIANGLE | PAD_CIRCLE | PAD_SELECT | PAD_START;
+      int scanDirection = 0;
+      if (!(rawInput & actionButtons)) {
+        int left = (rawInput & PAD_L2) != 0;
+        int right = (rawInput & PAD_R2) != 0;
+        scanDirection = right == left ? 0 : (right ? 1 : -1);
       }
-      int direction = right == left ? 0 : (right ? 1 : -1);
-      int total = collectionFavoritesOnly ? favoriteTitles->total : titles->total;
-      input = rawInput & ~prevInput & ~navButtons;
-      prevInput = rawInput;
-      if (input & (PAD_CROSS | PAD_TRIANGLE | PAD_CIRCLE | PAD_SELECT | PAD_START)) {
-        // Actions refer to the cover the user just saw, before advancing time.
-        lunaCollectionReset(&collectionMotion, collectionMotion.focus, uiNowMs());
-      } else {
-        if (left && right && collectionMotion.mode != COLLECTION_SETTLE &&
-            collectionMotion.mode != COLLECTION_IDLE)
-          lunaCollectionBrake(&collectionMotion);
-        lunaCollectionUpdate(&collectionMotion, total, direction, scanHeld,
-                              uiNowMs());
+      int scanStep = lunaCollectionScanUpdate(&collectionScan, scanDirection, uiNowMs());
+      input = rawInput & ~(PAD_L2 | PAD_R2);
+      if (scanDirection)
+        input &= ~(PAD_LEFT | PAD_RIGHT | PAD_UP | PAD_DOWN | PAD_L1 | PAD_R1);
+      if (scanStep) {
+        if (collectionFavoritesOnly) {
+          int next = lunaNavMarkedStep(favoriteFlags, titles->total, selectedTitleIdx, scanStep);
+          if (next >= 0)
+            selectedTitleIdx = next;
+        } else if (titles->total > 1) {
+          selectedTitleIdx = lunaNavWrap(titles->total, selectedTitleIdx + scanStep);
+        }
       }
-      if (total > 0) {
-        selectedTitleIdx = collectionFavoritesOnly
-                            ? lunaNavMarkedByRank(favoriteFlags, titles->total, collectionMotion.focus)
-                            : collectionMotion.focus;
-        curTarget = getTargetByIdx(titles, selectedTitleIdx);
-      }
-      if (!input) continue;
-    } else if (view == UI_VIEW_CLASSIC) {
+    }
+
+    if (view == UI_VIEW_CLASSIC) {
       const int rawInput = input;
       const int navButtons = PAD_LEFT | PAD_RIGHT | PAD_UP | PAD_DOWN;
       int direction = 0;
@@ -1608,6 +1609,19 @@ int uiLoop(TargetList *titles) {
     if (view == UI_VIEW_ORBIT && orbitRandomActive && (input & ~PAD_SQUARE) != 0)
       orbitRandomActive = 0;
 
+    collectionActionCoverIdx = PSBBN_COVER_CACHE_FOCUS;
+    if (view == UI_VIEW_PSBBN &&
+        psbbnAnimationDuration == COLLECTION_SCAN_STEP_MS &&
+        (input & (PAD_CROSS | PAD_TRIANGLE | PAD_CIRCLE | PAD_SELECT | PAD_START)) &&
+        collectionVisualTitleIdx >= 0) {
+      selectedTitleIdx = collectionVisualTitleIdx;
+      curTarget = getTargetByIdx(titles, selectedTitleIdx);
+      collectionActionCoverIdx = collectionVisualCoverIdx;
+      psbbnAnimationTargetIdx = -1;
+      psbbnAnimationStartOffset = 0;
+      psbbnAnimationDuration = PSBBN_ANIMATION_DURATION_MS;
+    }
+
     if ((view == UI_VIEW_CLASSIC || view == UI_VIEW_PSBBN) &&
         (input & PAD_SELECT) && !favoritesTabButtonHeld) {
       favoritesTabButtonHeld = 1;
@@ -1621,7 +1635,6 @@ int uiLoop(TargetList *titles) {
           selectedTitleIdx = firstFavorite;
       }
       if (view == UI_VIEW_PSBBN) {
-        collectionMotion.initialized = 0;
         releasePSBBNCovers();
         psbbnCoverBaseIdx = -1;
         psbbnAnimationTargetIdx = -1;
@@ -1644,20 +1657,16 @@ int uiLoop(TargetList *titles) {
                  gridSelectedLoaded[gridSelectedActiveBuffer]) {
         handoffCover = gridSelectedTextures[gridSelectedActiveBuffer];
       } else if ((view == UI_VIEW_PSBBN || view == UI_VIEW_ORBIT) &&
-                 psbbnCoverLoaded[PSBBN_COVER_CACHE_FOCUS]) {
-        handoffCover = psbbnCoverTextures[PSBBN_COVER_CACHE_FOCUS];
+                 psbbnCoverLoaded[collectionActionCoverIdx]) {
+        handoffCover = psbbnCoverTextures[collectionActionCoverIdx];
       }
       uiLaunchTitle(target, NULL, handoffCover);
       // Something went wrong, main loop must exit immediately
       return -1;
     } else if (input & PAD_CIRCLE) {
       UILibraryView previousView = view;
-      int keepSharedPSBBNCache;
       view = lunaNavNextView(view, orbsEnabled);
-      collectionMotion.initialized = 0;
-      // Retain the bounded shared cover cache in EE RAM through Classic and
-      // Grid. Filtered ranks belong to a different list and must be discarded.
-      keepSharedPSBBNCache = !collectionFavoritesOnly;
+      collectionScan = (LunaCollectionScan){0};
       favoritesOnly = 0;
       collectionFavoritesOnly = 0;
 
@@ -1669,18 +1678,14 @@ int uiLoop(TargetList *titles) {
         classicDisplayedDiscAvailable = 0;
         classicPreviousCoverAvailable = 0;
       } else if (previousView == UI_VIEW_PSBBN || previousView == UI_VIEW_ORBIT) {
-        if (!keepSharedPSBBNCache)
-          releasePSBBNCovers();
-        else if (view != UI_VIEW_ORBIT)
-          releasePSBBNCoverVRAM();
+        releasePSBBNCovers();
       } else if (previousView == UI_VIEW_ORBS) {
         releaseOrbsArt();
       } else if (previousView == UI_VIEW_GRID) {
         releaseGridCovers();
       }
 
-      if (!keepSharedPSBBNCache)
-        psbbnCoverBaseIdx = -1;
+      psbbnCoverBaseIdx = -1;
       psbbnAnimationTargetIdx = -1;
       psbbnAnimationStartOffset = 0;
       psbbnAnimationDuration = PSBBN_ANIMATION_DURATION_MS;

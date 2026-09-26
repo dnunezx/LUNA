@@ -227,8 +227,9 @@ game. Optional logo and background artwork can be added for each title.
 - **Square in Classic:** add or remove the selected game from Favorites.
 - **Select in Classic or Collection:** switch between the full library and
   Favorites.
-- **Collection:** tap Left/Up or Right/Down for one cover, or hold to browse.
-  Hold L2/R2 to fast scan; quick L2/R2 presses and L1/R1 have no Collection action.
+- **Collection:** Left/Up and Right/Down move between covers; holding a direction
+  repeats. L1/R1 jump backward or forward by a list page. Hold L2/R2 to fast
+  scan; quick L2/R2 taps do nothing.
 - **Square in Orbit:** start Random Scan. Any deliberate navigation
   input cancels it.
 - **L1/L2 or R1/R2 in Grid:** tap for one page or hold for fast-track paging.

@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 
-void drawPSBBNCover(GSTEXTURE *cover, float x1, float y1, float size, int cacheIdx, int emphasis, int visibility, int outgoing) {
+void drawPSBBNCover(GSTEXTURE *cover, float x1, float y1, float size, int cacheIdx, int emphasis, int visibility) {
   float x2 = x1 + size;
   float y2 = y1 + size;
   // GS texture modulation treats 0x80 as neutral. End the emphasis curve at
@@ -11,10 +11,8 @@ void drawPSBBNCover(GSTEXTURE *cover, float x1, float y1, float size, int cacheI
   int red = (0x58 + (emphasis * 0x28) / 1000) * visibility / 1000;
   int green = (0x64 + (emphasis * 0x1C) / 1000) * visibility / 1000;
   int blue = (0x70 + (emphasis * 0x10) / 1000) * visibility / 1000;
-  // The outgoing jacket must remain opaque and in front as the next jacket
-  // grows underneath it. The GS depth test can defeat painter's order alone.
-  int alpha = outgoing ? 0x80 : (0x40 + (emphasis * 0x40) / 1000) * visibility / 1000;
-  int z = outgoing ? 7 : 4 + (emphasis * 2) / 1000;
+  int alpha = (0x40 + (emphasis * 0x40) / 1000) * visibility / 1000;
+  int z = 4 + (emphasis * 2) / 1000;
 
   if (cover != NULL && psbbnCoverLoaded[cacheIdx]) {
     int previousAlphaTest = gsGlobal->Test->ATST;
@@ -38,7 +36,7 @@ void drawPSBBNCover(GSTEXTURE *cover, float x1, float y1, float size, int cacheI
     gsKit_set_test(gsGlobal, GS_ATEST_ON);
     gsKit_set_primalpha(gsGlobal, GS_SETREG_ALPHA(0, 1, 0, 1, 0), 0);
   } else {
-    int placeholderAlpha = outgoing ? 0x78 : (0x42 + (emphasis * 0x36) / 1000) * visibility / 1000;
+    int placeholderAlpha = (0x42 + (emphasis * 0x36) / 1000) * visibility / 1000;
     gsKit_prim_sprite(gsGlobal, x1, y1, x2, y2, z, GS_SETREG_RGBA(0x04, 0x14, 0x34, placeholderAlpha));
   }
 }
@@ -136,7 +134,7 @@ void formatPSBBNTitle(const char *source, char *destination, int maxWidth) {
 }
 
 void drawPSBBNCollection(TargetList *titles, int selectedTitleIdx, GSTEXTURE **covers, int flowOffset,
-                         int favoritesOnly, uint32_t frameNowMs, const LunaCollectionMotion *motion) {
+                         int favoritesOnly, uint32_t frameNowMs) {
   int top = headerHeight + 12;
   int bottom = gsGlobal->Height - footerHeight - 18;
   int selectedSize = (bottom - top) * 76 / 100;
@@ -155,7 +153,6 @@ void drawPSBBNCollection(TargetList *titles, int selectedTitleIdx, GSTEXTURE **c
   int visualFocusDistance = 0x7FFFFFFF;
   int panelLineY;
   int panelLineHeight = psbbnFieldStableHeight();
-  float speedBlend = motion->speedBlend;
 
   if (selectedSize > maxSelectedSize)
     selectedSize = maxSelectedSize;
@@ -205,8 +202,7 @@ void drawPSBBNCollection(TargetList *titles, int selectedTitleIdx, GSTEXTURE **c
     distance[cacheIdx] = psbbnAbsolute(position[cacheIdx]);
     targetIndex[cacheIdx] = lunaNavWrap(titles->total, selectedTitleIdx + relativeIndex);
     drawable[cacheIdx] = 1;
-    if (distance[cacheIdx] < visualFocusDistance ||
-        (distance[cacheIdx] == visualFocusDistance && cacheIdx == PSBBN_COVER_CACHE_FOCUS)) {
+    if (distance[cacheIdx] < visualFocusDistance) {
       visualFocus = cacheIdx;
       visualFocusDistance = distance[cacheIdx];
     }
@@ -221,21 +217,6 @@ void drawPSBBNCollection(TargetList *titles, int selectedTitleIdx, GSTEXTURE **c
     snprintf(focusCounter, sizeof(focusCounter), "%d/%d", targetIndex[visualFocus] + 1, titles->total);
     drawTextWindow(selectedX + selectedSize - 58, favoritesTextY, counterRight, 0, 5,
                    GS_SETREG_RGBA(0xC8, 0xD4, 0xE8, 0x80), ALIGN_RIGHT, focusCounter);
-  }
-
-  if (motion->scanLabelMs) {
-    Target *focused = getTargetByIdx(titles, selectedTitleIdx);
-    const char *name = focused->name;
-    while (*name == ' ') name++;
-    char letter = *name;
-    if (letter >= 'a' && letter <= 'z') letter -= 'a' - 'A';
-    if (letter < 'A' || letter > 'Z') letter = '#';
-    char scanLabel[24];
-    snprintf(scanLabel, sizeof(scanLabel), "SCAN  %c", letter);
-    int alpha = motion->scanLabelMs < 200 ? motion->scanLabelMs * 0x80 / 200 : 0x80;
-    drawTextWindow(selectedX, selectedY - getFontLineHeight() - 8,
-                   selectedX + selectedSize, selectedY, 6,
-                   GS_SETREG_RGBA(0xC8, 0xD4, 0xE8, alpha), ALIGN_HCENTER, scanLabel);
   }
 
   // Small libraries wrap within the ten-entry cache. Keep only the closest
@@ -253,8 +234,8 @@ void drawPSBBNCollection(TargetList *titles, int selectedTitleIdx, GSTEXTURE **c
 
   // Future covers form the background stream and draw far-to-near. Covers on
   // the outgoing side represent foreground depth: draw them after the entire
-  // stream, with the largest/closest zoom drawn last. Outgoing art also uses
-  // foreground depth and opacity so the next cover cannot interrupt its zoom.
+  // stream, with the largest/closest zoom drawn last. This prevents the next
+  // cover from clipping through the old cover halfway through the handoff.
   for (int pass = 0; pass < PSBBN_COVER_CACHE_COUNT; pass++) {
     int futureToDraw = -1;
     int outgoingToDraw = -1;
@@ -282,13 +263,11 @@ void drawPSBBNCollection(TargetList *titles, int selectedTitleIdx, GSTEXTURE **c
 
     if (position[cacheToDraw] < 0) {
       size = psbbnOutgoingCoverSize(distance[cacheToDraw], selectedSize);
-      size = selectedSize + (size - selectedSize) * (1.0f - speedBlend * 0.65f);
       itemCenterX = focalCenterX + psbbnOutgoingCenterOffset(distance[cacheToDraw], selectedSize);
       itemCenterY = centerY;
     } else {
       size = psbbnFutureCoverSize(distance[cacheToDraw], selectedSize);
       itemCenterX = focalCenterX - psbbnFutureCenterOffset(distance[cacheToDraw], selectedSize);
-      itemCenterX = focalCenterX + (itemCenterX - focalCenterX) * (1.0f - speedBlend * 0.08f);
       itemCenterY = centerY + (distance[cacheToDraw] * 3.0f) / 2000.0f;
     }
     float x1 = itemCenterX - size / 2.0f;
@@ -305,8 +284,7 @@ void drawPSBBNCollection(TargetList *titles, int selectedTitleIdx, GSTEXTURE **c
     }
 
     if (x1 + size > 24.0f && x1 < (float)(gsGlobal->Width - keepoutArea))
-      drawPSBBNCover(covers[cacheToDraw], x1, y1, size, cacheToDraw, emphasis, visibility,
-                    position[cacheToDraw] < 0);
+      drawPSBBNCover(covers[cacheToDraw], x1, y1, size, cacheToDraw, emphasis, visibility);
   }
   drawCollectionFooter();
 }
