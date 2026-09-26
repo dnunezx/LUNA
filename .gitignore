@@ -43,7 +43,12 @@ emulation/captures/
 /BUILDING.md
 /FMCB.md
 /NHDDL_FIDELITY.md
+/NEUTRINO_FORK.md
 /Collection Flow Improvement plan.txt
+/.agents/
+/.codex/
+/local/
+/instructions/
 /reference-opl/
 /release-staging/
 /nhddl/.github/
