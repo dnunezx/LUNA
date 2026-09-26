@@ -40,21 +40,16 @@ emulation/captures/
 /AGENTS.md
 /EMULATION.md
 /PROJECT.md
-/BUILDING.md
-/FMCB.md
-/NHDDL_FIDELITY.md
-/Collection Flow Improvement plan.txt
 /reference-opl/
+/reference-nhddl/
+/reference-nhddl-luna/
+/.worktrees/
 /release-staging/
 /nhddl/.github/
 /neutrino/.github/
 /nhddl/iop/mmceman/.github/
 /nhddl/.gitmodules
 /nhddl/docs/
-**/tests/
-/nhddl/emulation/
-**/notes/
-/tools/verify-fmcb-package.ps1
 
 # Python and editor state
 __pycache__/

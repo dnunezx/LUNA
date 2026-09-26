@@ -1,8 +1,0 @@
-# USB/exFAT diagnostic configuration for LUNA launched from
-# mc0:/APP_LUNA/luna.elf. Place this beside that ELF as luna.yaml.
-# Keep the complete Neutrino runtime in APP_LUNA.
-mode: usb
-return_path: mc0:/APP_LUNA/luna.elf
-
-# Optional video mode. Leave unset to preserve the console/game default.
-# video: 480p

@@ -1,7 +1,0 @@
-# Original LUNA configuration: Danny Nunez (dnunezx) 2026
-# Legacy LUNA configuration with the runtime on the internal ATA/exFAT drive.
-mode: ata
-return_path: hdd
-
-# Optional video mode. Leave unset to preserve the console/game default.
-# video: 480p

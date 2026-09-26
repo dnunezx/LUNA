@@ -1,3 +1,8 @@
 [submodule "neutrino"]
 	path = neutrino
 	url = https://github.com/dnunezx/neutrino-luna.git
+	branch = master
+[submodule "nhddl"]
+	path = nhddl
+	url = https://github.com/dnunezx/nhddl-luna.git
+	branch = luna

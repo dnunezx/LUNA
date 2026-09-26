@@ -1,6 +1,0 @@
-# LUNA modifications: Danny Nunez (dnunezx) 2026
-#video: ntsc # supported video modes: ntsc, pal, 480p
-mode: ata # supported modes: ata, mx4sio, udpfs, usb, ilink, mmce, hdl. USB, MX4SIO, MMCE, iLink, and UDPFS require an explicit mode entry for library scanning
-mode: mmce # multiple modes are supported via multiple mode strings
-#udpfs_ip: 192.168.1.6 # PS2 IP address for UDPFS mode (commented out)
-return_path: mc0:/APP_LUNA/luna.elf # Direct return to the fixed-slot FMCB installation
