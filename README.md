@@ -285,9 +285,9 @@ option files can still be read for migration, but new writes go to `/LUNA`.
 - `tools/`: local build, FMCB packaging, and package-verification helpers.
 - `LICENSES/`: licenses retained from upstream projects and dependencies.
 
-See [UPSTREAM.md](UPSTREAM.md) for exact source lineage,
-[AUTHORS.md](AUTHORS.md) for attribution, [BUILDING.md](BUILDING.md) for local
-build instructions, and [FMCB.md](FMCB.md) for the installation layout.
+See [UPSTREAM.md](UPSTREAM.md) for exact source lineage and
+[AUTHORS.md](AUTHORS.md) for attribution. The installation layout is described
+above, and both forks are checked out with `git submodule update --init --recursive`.
 
 ## Repository contents
 

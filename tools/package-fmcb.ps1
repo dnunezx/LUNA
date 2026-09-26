@@ -22,8 +22,7 @@ $launcher = Join-Path $dist $launcherName
 $launcherConfig = Join-Path $workspace 'nhddl/examples/luna.yaml'
 $ambientAsset = Join-Path $workspace 'nhddl/assets/ambient.wav'
 $neutrinoRoot = Join-Path $workspace 'neutrino/ee/loader'
-$fmcbReadme = Join-Path $workspace 'FMCB.md'
-$packageReadme = if (Test-Path -LiteralPath $fmcbReadme) { $fmcbReadme } else { Join-Path $workspace 'README.md' }
+$packageReadme = Join-Path $workspace 'README.md'
 $required = @(
     $launcher,
     $launcherConfig,
