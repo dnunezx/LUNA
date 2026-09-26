@@ -4,8 +4,8 @@
   <img src="assets/luna-logo.svg" alt="LUNA logo" width="700">
 </p>
 
-LUNA (**Lightweight Unified Neutrino Access**) is a visual PlayStation 2 game
-loader derived from [NHDDL](https://github.com/pcm720/nhddl) and
+LUNA (**Lightweight Unified Neutrino Access**) is a visual PS2 loader derived
+from [NHDDL](https://github.com/pcm720/nhddl) and
 [Neutrino](https://github.com/rickgaiser/neutrino). It preserves NHDDL's
 established ISO discovery, title configuration, and Neutrino launch path while
 adding a new library experience and a coordinated LUNA runtime.
@@ -188,7 +188,7 @@ both the NHDDL-derived frontend and the Neutrino-derived game runtime.
 | FMCB deployment | The frontend and runtime can live together at `mc0:/APP_LUNA` while each hard drive retains its own artwork, cache, settings, and Favorites. |
 | In-game return | **Work in progress.** ~~The planned LUNA Neutrino runtime will recognize a held controller combination and return directly to a configured memory-card ELF or through the HDD/browser boot chain.~~ |
 | Return safety | The planned return path will request a coordinated optical/DEV9 shutdown and fail closed if safe shutdown cannot be confirmed. |
-| Physical power button | LUNA adds a dedicated IOP-side safe-shutdown path that preserves the console's normal power-off behavior. Unlike NHDDL, it coordinates DEV9 shutdown before issuing the standard power-off command. |
+| Physical power button | LUNA adds a dedicated IOP-side safe-shutdown path. It coordinates DEV9 shutdown before issuing the standard power-off command, preserving the console's normal power-off behavior. |
 
 ## Library views and controls
 
