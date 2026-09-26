@@ -26,7 +26,7 @@ void drawSharedLibraryBackground(uint32_t frameNowMs);
 void drawPSBBNFocusGlow(int left, int top, int rowRight, int textRight);
 #endif
 void drawPSBBNCover(GSTEXTURE *cover, float x1, float y1, float size, int cacheIdx,
-                    int emphasis, int visibility, int outgoing);
+                    int emphasis, int visibility);
 void formatPSBBNTitle(const char *source, char *destination, int maxWidth);
 
 #endif

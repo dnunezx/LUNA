@@ -33,9 +33,9 @@ press **Start** to save. The layout applies to Classic for the whole library on
 that drive. Orbs is off by default; enabling it adds Orbs to the Circle view
 cycle. **Triangle** cancels an unsaved change and returns to the menu.
 
-In Luna's Collection view, tap Left/Up or Right/Down to move one cover, or hold
-to browse. Hold L2/R2 to fast scan after a brief pause. Quick L2/R2 presses and
-L1/R1 have no Collection action.
+In Luna's Collection view, Left/Up and Right/Down move between covers; holding
+a direction repeats. L1/R1 jump backward or forward by a list page. Hold L2/R2
+to fast scan; quick L2/R2 taps do nothing.
 
 In Luna's Grid view, release a shoulder before half a second for one page. Hold
 L1/L2 or R1/R2 for at least half a second to fast-track through lightweight

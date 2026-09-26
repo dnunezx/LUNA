@@ -28,8 +28,6 @@ int loadNextClassicCoverArt(struct DeviceMapEntry *device, char *titleID);
 int loadDiscArt(struct DeviceMapEntry *device, char *titleID);
 void releaseClassicArtVRAM(void);
 void releasePSBBNCovers(void);
-void releasePSBBNCoverVRAM(void);
-void prepareCollectionCovers(TargetList *titles, int focus);
 void releaseGridCovers(void);
 void releaseGridTexture(GSTEXTURE *texture);
 int loadGridPageStep(TargetList *titles, int pageBase, int buffer, int *nextSlot,
@@ -42,8 +40,5 @@ void updatePSBBNCoverResidency(int flowOffset);
 void refreshOrbsLogos(TargetList *titles, int selectedTitleIdx);
 void refreshOrbsBackground(Target *target);
 void releaseOrbsArt(void);
-// Collection remaps by identity and prepares at most one missing cover per call.
-int refreshCollectionCovers(TargetList *titles, int focus, int offset,
-                             int direction, int allowLoad, int fast);
 
 #endif

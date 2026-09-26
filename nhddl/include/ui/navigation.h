@@ -27,31 +27,17 @@
 #define CLASSIC_REPEAT_INTERVAL_MS 105
 #define CLASSIC_ART_SETTLE_MS 90
 #define CLASSIC_COVER_FADE_DURATION_MS 180
-
-#define COLLECTION_STEP_MS 300
-#define COLLECTION_HOLD_MS 280
 #define COLLECTION_SCAN_HOLD_MS 450
-#define COLLECTION_SETTLE_MS 160
-#define COLLECTION_SCAN_LABEL_MS 400
-
-typedef enum {
-  COLLECTION_IDLE, COLLECTION_STEP, COLLECTION_BROWSE,
-  COLLECTION_SCAN, COLLECTION_SETTLE
-} LunaCollectionMode;
+#define COLLECTION_SCAN_STEP_MS 100
 
 typedef struct {
-  int initialized, focus, direction, scanHeld, travelDirection;
-  float position, velocity, target, startPosition, startVelocity, speedBlend;
-  uint32_t lastMs, heldMs, motionMs, durationMs, scanLabelMs;
-  LunaCollectionMode mode;
-} LunaCollectionMotion;
+  int heldDirection;
+  int active;
+  uint32_t holdStartMs;
+  uint32_t nextStepMs;
+} LunaCollectionScan;
 
-void lunaCollectionReset(LunaCollectionMotion *state, int focus, uint32_t now);
-void lunaCollectionUpdate(LunaCollectionMotion *state, int total, int direction,
-                          int scanHeld, uint32_t now);
-void lunaCollectionBrake(LunaCollectionMotion *state);
-int lunaCollectionOffset(const LunaCollectionMotion *state);
-void lunaCollectionCacheLayout(int total, int focus, int offset, int *targets);
+int lunaCollectionScanUpdate(LunaCollectionScan *scan, int direction, uint32_t now);
 
 typedef struct {
   int direction;
