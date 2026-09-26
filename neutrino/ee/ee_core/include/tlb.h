@@ -1,2 +1,0 @@
-void InitializeTLB(void);
-
