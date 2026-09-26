@@ -4,7 +4,7 @@
   <img src="assets/luna-logo.svg" alt="LUNA logo" width="700">
 </p>
 
-LUNA (**Lightweight Unified Neutrino Access**) is a visual PlayStation 2 game
+LUNA (**Lightweight Unified Neutrino Access**) is a visual PS2
 loader derived from [NHDDL](https://github.com/pcm720/nhddl) and
 [Neutrino](https://github.com/rickgaiser/neutrino). It preserves NHDDL's
 established ISO discovery, title configuration, and Neutrino launch path while
