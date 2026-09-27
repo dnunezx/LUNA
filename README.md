@@ -231,10 +231,11 @@ game name and controls remain below the animation; this view needs no artwork.
 - **L1/L2 or R1/R2 in Grid:** tap for one page or hold for fast-track paging.
   Artwork loading resumes only at the final page when the buttons are released.
 
-The in-game return feature is currently a work in progress. ~~Its planned control
-combination is **L1 + L2 + R1 + R2 + Start + Select** held for roughly one
-second; the default FMCB configuration is intended to return to
-`mc0:/APP_LUNA/luna.elf`.~~
+Hold **L1 + L2 + R1 + R2 + Start + Select** for roughly one second to return
+from a game to LUNA. The default FMCB configuration targets
+`mc0:/APP_LUNA/luna.elf`. Return from Tony Hawk's Pro Skater 4 was verified in
+PCSX2 from both the pregame screen and active gameplay. Physical-console
+validation is still pending.
 
 ## Artwork layout
 
