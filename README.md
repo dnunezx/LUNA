@@ -175,7 +175,7 @@ both the NHDDL-derived frontend and the Neutrino-derived game runtime.
 
 | Area | LUNA addition |
 | --- | --- |
-| Library interface | A PS2-inspired glass interface with animated stars and crystals, LUNA branding, and five switchable library views. |
+| Library interface | A PS2-inspired glass interface with animated stars and crystals, LUNA branding, five switchable library views, and a dedicated glass Options scene. |
 | Classic view | A refined list-and-cover layout with a rotating disc label, Favorites controls, and paired cover/disc artwork. |
 | Collection view | A PSBBN-inspired cover flow with animated focus changes and a Collection/Favorites filter. |
 | Grid view | A 4x4 artwork grid with paged caching, row-cascade transitions, large selected-cover preview, and fast-track shoulder navigation. |
@@ -186,8 +186,8 @@ both the NHDDL-derived frontend and the Neutrino-derived game runtime.
 | Configured storage scan | The library scans ATA and HDL when available. USB, MX4SIO, MMCE, iLink, and UDPFS require explicit `mode:` entries. The shipped configuration uses internal ATA/exFAT and avoids waiting for a nonexistent second mass-storage device. |
 | Safer persistent state | LUNA writes cache, last-title, global options, and per-title settings under `/LUNA`, reads legacy `/nhddl` state as a fallback, bounds stored paths, and replaces key files only after a complete temporary write. |
 | FMCB deployment | The frontend and runtime can live together at `mc0:/APP_LUNA` while each hard drive retains its own artwork, cache, settings, and Favorites. |
-| In-game return | **Work in progress.** ~~The planned LUNA Neutrino runtime will recognize a held controller combination and return directly to a configured memory-card ELF or through the HDD/browser boot chain.~~ |
-| Return safety | The planned return path will request a coordinated optical/DEV9 shutdown and fail closed if safe shutdown cannot be confirmed. |
+| In-game return | Hold L1 + L2 + R1 + R2 + Start + Select for roughly one second to return from a game to the configured LUNA ELF. This has been tested on a physical FAT PS2. |
+| Return safety | The Neutrino runtime coordinates optical and DEV9 shutdown before handing off to the configured return path. |
 | Physical power button | LUNA adds a dedicated IOP-side safe-shutdown path. It coordinates DEV9 shutdown before issuing the standard power-off command, preserving the console's normal power-off behavior. |
 
 ## Library views and controls
@@ -213,9 +213,10 @@ The **Orbs** view centers the spinning lights and their trails. The selected
 game name and controls remain below the animation; this view needs no artwork.
 
 - **Cross:** launch the selected game.
-- **Triangle:** open the options menu, with **Per-game settings** first and
-  **Global settings** second.
-- **Classic layout:** choose **Global settings**, press **Cross** or **Circle**
+- **Triangle:** open the dedicated Options scene. Its tabs are **Game**,
+  **System**, **Views**, and **Orbs**. Collection opens it with a top pan;
+  the other views use a side pan.
+- **Classic layout:** open the **Views** tab, press **Cross** or **Circle**
   on **Classic art layout** to choose Separate or Overlap, then press **Start**
   to save. Overlap places the spinning disc behind the cover, with its lower
   half hidden. The choice is saved for the library on that drive.
@@ -234,8 +235,8 @@ game name and controls remain below the animation; this view needs no artwork.
 Hold **L1 + L2 + R1 + R2 + Start + Select** for roughly one second to return
 from a game to LUNA. The default FMCB configuration targets
 `mc0:/APP_LUNA/luna.elf`. Return from Tony Hawk's Pro Skater 4 was verified in
-PCSX2 from both the pregame screen and active gameplay. Physical-console
-validation is still pending.
+PCSX2 from both the pregame screen and active gameplay. In-game return has
+also been tested on a physical FAT PS2.
 
 ## Artwork layout
 
