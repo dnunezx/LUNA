@@ -169,6 +169,11 @@ and UDPFS are scanned only when their `mode:` entry is explicitly enabled in
 
 ### Virtual memory cards on the exFAT drive
 
+LUNA currently creates and assigns VMCs on exFAT and other supported local
+file storage. APA/PFS drives can hold HDL games, but they do not appear in the
+VMC drive picker because VMC saving from PFS is not supported yet. Use a
+physical memory card for games launched from an APA drive.
+
 Open **Start → Virtual Memory Cards**, choose the drive that holds the game,
 and select **Create new card**. LUNA creates a formatted 8 MiB card named
 `LUNA_001.bin` (then `LUNA_002.bin`, and so on) in that drive's `/VMC` folder.
