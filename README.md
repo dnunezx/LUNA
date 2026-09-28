@@ -167,6 +167,23 @@ and UDPFS are scanned only when their `mode:` entry is explicitly enabled in
   described above.
 - **ATA** MBR/GPT exFAT storage (`mode: ata`), set by default
 
+### Virtual memory cards on the exFAT drive
+
+Open **Start → Virtual Memory Cards**, choose the drive that holds the game,
+and select **Create new card**. LUNA creates a formatted 8 MiB card named
+`LUNA_001.bin` (then `LUNA_002.bin`, and so on) in that drive's `/VMC` folder.
+Creation never replaces an existing image. You can also copy an existing raw
+OPL `.bin` card image into that folder. Open the game's **Options**, choose
+**VMC slot 1** or **VMC slot 2**, select the card, and press **Start** on the
+Game tab to save the assignment. Choose **Physical card** to turn VMC off for
+a slot.
+
+Neutrino checks the card's superblock, page geometry, and file size before
+launch. It accepts raw 8, 16, 32, and 64 MiB images; images with separate ECC
+bytes or a mismatched length are rejected. Back up an existing OPL card before
+its first LUNA save. A complete save, reboot, and reload on a physical PS2 is
+still required to establish game compatibility.
+
 
 ## What LUNA adds
 
