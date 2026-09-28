@@ -308,6 +308,20 @@ See [UPSTREAM.md](UPSTREAM.md) for exact source lineage and
 [AUTHORS.md](AUTHORS.md) for attribution. The installation layout is described
 above, and both forks are checked out with `git submodule update --init --recursive`.
 
+### Special thanks
+
+Special thanks to **Ivan V ([pcm720](https://github.com/pcm720))**, the main
+developer of NHDDL, and **Rick Gaiser ([Maximus32](https://github.com/ps2max32))**,
+the creator of Neutrino. Their work forms the foundation of LUNA.
+
+Special thanks to **[CosmicScale](https://github.com/CosmicScale)** and his
+**[PSBBN Definitive Project](https://github.com/CosmicScale/PSBBN-Definitive-Project)**,
+which inspired LUNA's design and supplied assets used by LUNA.
+
+Special thanks to **[NathanNeurotic (Ripto)](https://github.com/NathanNeurotic)**
+for helping with LUNA's ambient orbs, and to **[aap](https://github.com/aap/osdbits)**
+for reverse engineering parts of the PlayStation 2's OSDSYS in `osdbits`.
+
 ## Repository contents
 
 Apart from the interface preview GIFs, this source tree intentionally does
