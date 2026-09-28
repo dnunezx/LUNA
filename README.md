@@ -36,7 +36,7 @@ LUNA must be installed on a PS2 memory card for in-game return (IGR) to work.
 
 ### 1. Put LUNA on the USB drive
 
-1. On your computer, download the `LUNA-v2.0.0-beta.1-FMCB-mc0.zip` file.
+1. On your computer, download the `LUNA-v2.0.0-beta.2-FMCB-mc0.zip` file.
 2. Open the ZIP file and choose **Extract** or **Extract all**. Open the
    extracted folders until you can see a folder named `APP_LUNA`.
 3. Plug the USB flash drive into your computer. Open the USB drive and copy
