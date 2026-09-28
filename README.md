@@ -34,7 +34,7 @@ memory card; your games and artwork stay on the internal hard drive.
 
 ### 1. Put LUNA on the USB drive
 
-1. On your computer, download the `LUNA-v1.1.0-FMCB-mc0.zip` file.
+1. On your computer, download the `LUNA-v2.0.0-beta.1-FMCB-mc0.zip` file.
 2. Open the ZIP file and choose **Extract** or **Extract all**. Open the
    extracted folders until you can see a folder named `APP_LUNA`.
 3. Plug the USB flash drive into your computer. Open the USB drive and copy
