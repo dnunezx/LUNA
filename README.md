@@ -12,14 +12,15 @@ adding a new library experience and a coordinated LUNA runtime.
 
 The current configuration is designed for an FMCB-hosted frontend and Neutrino
 runtime with games, artwork, and writable library state on an internal
-ATA/exFAT hard drive.
+ATA/exFAT hard drive. Other game storage devices may work, but LUNA is
+optimized for and officially supports only an internal hard drive.
 
 
 ## Requirements
 
 - **Compatible PlayStation 2:** all hardware testing was done on a ps2 fat.
 - **FMCB memory card:** with enough space for the LUNA application.
-- **Internal ATA/exFAT drive:** an internal drive with an MBR- or GPT-formatted drive containing an exFAT partition. HDD and SDD are both supported.
+- **Internal ATA/exFAT hard drive:** an HDD with an MBR or GPT partition table and an exFAT partition. This is the optimized and officially supported game storage setup.
 - **Network adapter or HDD bridge:** all hardware testing was done with a GameStar PS2 SATA HDD Adapter.
 - **Artwork:** artwork is optional and is not required to launch an
   ISO. For the complete library presentation use
@@ -31,6 +32,7 @@ ATA/exFAT hard drive.
 These steps assume you already have a working FMCB memory card, a PS2
 controller, and a USB flash drive that your PS2 can read. LUNA is copied to the
 memory card; your games and artwork stay on the internal hard drive.
+LUNA must be installed on a PS2 memory card for in-game return (IGR) to work.
 
 ### 1. Put LUNA on the USB drive
 
@@ -149,23 +151,13 @@ OPL-compatible cover art.
 LUNA is configured to use only the internal ATA drive because initializing every
 available storage device adds time to startup, even when those devices aren’t
 being used. Keeping the scan focused on one device helps the library load faster
-and makes startup more predictable; other device modes can be enabled when
-needed.
+and makes startup more predictable. Other game storage devices may work when
+their modes are enabled, but they are not officially supported.
+
 The supplied package is configured for an internal ATA/exFAT drive. LUNA's
 library scans ATA and HDL devices when available. USB, MX4SIO, MMCE, iLink,
 and UDPFS are scanned only when their `mode:` entry is explicitly enabled in
-`luna.yaml`:
-
-- **MX4SIO** SD storage (`mode: mx4sio`). This mode must be enabled explicitly
-  and makes MMCE devices unavailable while active.
-- **USB mass storage** (`mode: usb`).
-- **MMCE** devices, including SD2PSX and MemCard PRO2 (`mode: mmce`).
-- **iLink / IEEE 1394** storage (`mode: ilink`).
-- **UDPFS / UDPBD** network storage (`mode: udpfs`); requires the PS2 network
-  address and a compatible server.
-- **HD Loader (HDL)** APA-partitioned HDD (`mode: hdl`), subject to the limits
-  described above.
-- **ATA** MBR/GPT exFAT storage (`mode: ata`), set by default
+`luna.yaml`.
 
 ### Virtual memory cards on the exFAT drive
 
@@ -256,9 +248,10 @@ game name and controls remain below the animation; this view needs no artwork.
 
 Hold **L1 + L2 + R1 + R2 + Start + Select** for roughly one second to return
 from a game to LUNA. The default FMCB configuration targets
-`mc0:/APP_LUNA/luna.elf`. Return from Tony Hawk's Pro Skater 4 was verified in
-PCSX2 from both the pregame screen and active gameplay. In-game return has
-also been tested on a physical FAT PS2.
+`mc0:/APP_LUNA/luna.elf`. IGR works only when LUNA is installed on a PS2 memory
+card and `return_path` points to that installation. Return from Tony Hawk's
+Pro Skater 4 was verified in PCSX2 from both the pregame screen and active
+gameplay. In-game return has also been tested on a physical FAT PS2.
 
 ## Artwork layout
 
@@ -319,15 +312,15 @@ Special thanks to **Ivan V ([pcm720](https://github.com/pcm720))**, the main
 developer of NHDDL, and **Rick Gaiser ([Maximus32](https://github.com/ps2max32))**,
 the creator of Neutrino. Their work forms the foundation of LUNA.
 
-Special thanks to **[CosmicScale](https://github.com/CosmicScale)** and his
+Thanks to **[CosmicScale](https://github.com/CosmicScale)** and his
 **[PSBBN Definitive Project](https://github.com/CosmicScale/PSBBN-Definitive-Project)**,
 which inspired LUNA's design and supplied assets used by LUNA.
 
-Special thanks to **[NathanNeurotic (Ripto)](https://github.com/NathanNeurotic)**
+Thanks to **[NathanNeurotic (Ripto)](https://github.com/NathanNeurotic)**
 for helping with LUNA's ambient orbs, and to **[aap](https://github.com/aap/osdbits)**
 for reverse engineering parts of the PlayStation 2's OSDSYS in `osdbits`.
 
-Special thanks to **[zackcage6](https://github.com/zackcage6)** for testing LUNA.
+Thanks to **[zackcage6](https://github.com/zackcage6)** for testing LUNA.
 
 ## Repository contents
 
