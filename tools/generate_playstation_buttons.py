@@ -16,9 +16,8 @@ def stroke_mask(symbol: str, width: float) -> Image.Image:
     draw = ImageDraw.Draw(mask)
     line_width = round(width * SCALE)
     # Align the visible stroke mass to the center pixel between 12 and 13.
-    # The triangle needs extra lift because its long base carries more weight.
     shift_x = 0.5
-    shift_y = -1.5 if symbol == "triangle" else 0.5
+    shift_y = 0.5
 
     def path(points: tuple[tuple[float, float], ...], closed: bool = False) -> None:
         vertices = points + (points[0],) if closed else points
@@ -35,7 +34,7 @@ def stroke_mask(symbol: str, width: float) -> Image.Image:
     elif symbol == "square":
         path(((6.5, 6.5), (18.5, 6.5), (18.5, 18.5), (6.5, 18.5)), closed=True)
     elif symbol == "triangle":
-        path(((CENTER, 5.9), (19.4, 18.9), (5.6, 18.9)), closed=True)
+        path(((CENTER, 6.5), (19.4, 18.5), (5.6, 18.5)), closed=True)
     elif symbol == "cross":
         path(((6.8, 6.8), (18.2, 18.2)))
         path(((18.2, 6.8), (6.8, 18.2)))

@@ -234,6 +234,11 @@ game name and controls remain below the animation; this view needs no artwork.
   on **Classic art layout** to choose Separate or Overlap, then press **Start**
   to save. Overlap places the spinning disc behind the cover, with its lower
   half hidden. The choice is saved for the library on that drive.
+- **Background orb colors:** in the **Orbs** tab, choose **Orb color** and
+  **Tail color** separately with Left or Right, then press **Start** to save.
+  Original keeps the existing colors. These choices affect only the shared
+  Ambient Orbs background; Orbit view, Orbs view, and the loading screen keep
+  their own colors.
 - **Start:** exit the library.
 - **Square in Classic:** add or remove the selected game from Favorites.
 - **Select in Classic or Collection:** switch between the full library and
