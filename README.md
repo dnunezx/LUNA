@@ -1,5 +1,3 @@
-
-
 <p align="center">
   <img src="assets/luna-logo.svg" alt="LUNA logo" width="700">
 </p>
@@ -12,14 +10,16 @@ adding a new library experience and a coordinated LUNA runtime.
 
 The current configuration is designed for an FMCB-hosted frontend and Neutrino
 runtime with games, artwork, and writable library state on an internal
-ATA/exFAT hard drive. LUNA requires that drive for its intended library
+ATA/exFAT hard drive. LUNA requires a hard drive for its intended library
 performance: slower storage can make artwork retrieval and cache misses visibly
 delay navigation.
 
+This README describes the current source tree. A published release package may
+have fewer features if the source has changed since that release.
 
 ## Requirements
 
-- **Compatible PlayStation 2:** all hardware testing was done on a ps2 fat.
+- **Compatible PlayStation 2:** hardware testing has been done on a fat model PS2.
 - **FMCB memory card:** with enough space for the LUNA application.
 - **Internal ATA/exFAT hard drive:** an HDD with an MBR or GPT partition table and an exFAT partition. This is the optimized and officially supported game storage setup.
 - **Network adapter or HDD bridge:** all hardware testing was done with a GameStar PS2 SATA HDD Adapter.
@@ -37,11 +37,13 @@ LUNA must be installed on a PS2 memory card for in-game return (IGR) to work.
 
 ### 1. Put LUNA on the USB drive
 
-1. On your computer, download the `LUNA-v2.0.0-beta.2-FMCB-mc0.zip` file.
+1. On your computer, download the memory-card slot 1 package whose filename
+   ends in `-FMCB-mc0.zip` from the
+   [LUNA releases page](https://github.com/dnunezx/LUNA/releases).
 2. Open the ZIP file and choose **Extract** or **Extract all**. Open the
    extracted folders until you can see a folder named `APP_LUNA`.
 3. Plug the USB flash drive into your computer. Open the USB drive and copy
-   the entire `APP_LUNA` folder to the USB drive's main screen. Do not copy
+   the entire `APP_LUNA` folder to the root of the USB drive. Do not copy
    only `luna.elf`; LUNA needs the files and folders inside `APP_LUNA` too.
 4. Before removing the USB drive, check that the file is located here:
 
@@ -53,7 +55,7 @@ LUNA must be installed on a PS2 memory card for in-game return (IGR) to work.
 
 5. Safely remove the USB drive from the computer and plug it into the PS2.
 6. Turn on the PS2 and wait for the FMCB menu.
-7. Open the **ELF installer** or **file manager** from the FMCB menu. On many
+7. Open the **file manager** from the FMCB menu. On many
    FMCB cards this program is called **uLaunchELF** or **wLaunchELF**. This is
    the program that lets you copy files between the USB drive and memory card.
 8. In the file manager, open `mass:/`. This is usually the USB drive. Find
@@ -96,8 +98,9 @@ Prepare the ATA/exFAT drive on a computer before launching LUNA. The easiest
 way is to use [OrbitPS2 Manager — LUNA Edition](https://github.com/dnunezx/OrbitPS2-Manager-LUNA-edition).
 
 1. Connect or mount the ATA/exFAT game drive on your computer.
-2. Open **OrbitPS2 Manager — LUNA Edition** and click **Mount Directory** and select your drive
-3. The manager checks for and can create these folders:
+2. Open **OrbitPS2 Manager — LUNA Edition**, click **Mount Directory**, and
+   select the root folder of your game drive.
+3. The manager checks for these folders and can create any that are missing:
 
    ```text
    CD/
@@ -152,7 +155,7 @@ OPL-compatible cover art.
 
 LUNA officially supports only an internal ATA/exFAT hard drive. During
 navigation, LUNA reads and decodes PNGs and maintains
-bounded artwork caches in EE memory and GS VRAM. Collection, Grid, and Orbit
+bounded artwork caches in EE memory and GS VRAM. Artwork-heavy views
 cannot keep an entire library resident, so moving to uncached titles or pages
 requires further reads from storage. The internal ATA HDD supplies the
 throughput and access times needed to fill those caches without prolonged
@@ -174,8 +177,8 @@ VMC drive picker because VMC saving from PFS is not supported yet. Use a
 physical memory card for games launched from an APA drive.
 
 Open a game's **Options → Game → Virtual memory cards**. It shows **Disabled**
-until a virtual card is assigned to either slot. Press **Cross** to open the
-text-only submenu. Choose **Create new card** to make a formatted 8 MiB card named
+until a virtual card is assigned to either slot. Press **Cross** to open its
+settings. Choose **Create new card** to make a formatted 8 MiB card named
 `LUNA_001.bin` (then `LUNA_002.bin`, and so on) in that drive's `/VMC` folder.
 Creation never replaces an existing image. You can also copy an existing raw
 OPL `.bin` card image into that folder. Choose **VMC slot 1** or **VMC slot 2**,
@@ -199,13 +202,14 @@ both the NHDDL-derived frontend and the Neutrino-derived game runtime.
 
 | Area | LUNA addition |
 | --- | --- |
-| Library interface | A PS2-inspired glass interface with animated stars and crystals, LUNA branding, five switchable library views, and a dedicated glass Options scene. |
-| Classic view | A refined list-and-cover layout with a rotating disc label, Favorites controls, and paired cover/disc artwork. |
-| Collection view | A PSBBN-inspired cover flow with animated focus changes and a Collection/Favorites filter. |
+| Library interface | A PS2-inspired glass interface with animated stars and crystals, LUNA branding, six selectable library views, and a dedicated Options screen. |
+| List view | A list-and-cover layout with a rotating disc label, Favorites controls, and paired cover/disc artwork. |
+| Collections view | A PSBBN-inspired cover flow with animated focus changes and a Collections/Favorites filter. |
 | Grid view | A 4x4 artwork grid with paged caching, row-cascade transitions, large selected-cover preview, and fast-track shoulder navigation. |
 | Orbit view | A depth-sorted ring of covers with perspective, fading, shared artwork caching, and a Square-button Random Scan that avoids reselecting the current title. |
-| Orbs view | Seven spinning lights with fading trails, centered on a dark screen without artwork. |
-| Favorites | Per-drive Favorites stored in `/LUNA/favorites.txt`, shared by Classic and Collection without modifying the game library. |
+| Scroll view (experimental) | A scrolling title and logo display alongside animated ambient orbs. |
+| Save Icons view (experimental) | A grid layout with a save-icon preview for the selected game. |
+| Favorites | Per-drive Favorites stored in `/LUNA/favorites.txt`, shared by List and Collections without modifying the game library. |
 | Artwork | OPL-compatible covers plus optional disc labels and PSBBN-style square artwork, with view-specific caching and GS VRAM recovery. |
 | Configured storage scan | The library scans ATA and HDL when available. USB, MX4SIO, MMCE, iLink, and UDPFS require explicit `mode:` entries. The shipped configuration uses internal ATA/exFAT and avoids waiting for a nonexistent second mass-storage device. |
 | Safer persistent state | LUNA writes cache, last-title, global options, and per-title settings under `/LUNA`, reads legacy `/nhddl` state as a fallback, bounds stored paths, and replaces key files only after a complete temporary write. |
@@ -216,16 +220,19 @@ both the NHDDL-derived frontend and the Neutrino-derived game runtime.
 
 ## Library views and controls
 
-Press **Circle** to cycle through **Classic**, **Collection**, **Grid**, **Orbit**, and **Orbs**.
+Press **Circle** to cycle through enabled views. **List**, **Collections**, and
+**Orbit** are enabled by default. The **Views** tab in Options can also enable
+**Scroll**, **Grid**, and **Save Icons**; Scroll and Save Icons are marked
+experimental.
 
 ### Views in motion
 
-The four artwork views are shown below. The previews use sample game artwork.
+Four views are shown below using sample game artwork.
 
 <table>
   <tr>
-    <td align="center" width="50%"><strong>Classic</strong><br><img src="assets/previews/classic.gif" alt="Classic list view with cover art and a rotating disc label" width="360"></td>
-    <td align="center" width="50%"><strong>Collection</strong><br><img src="assets/previews/collection.gif" alt="Collection view moving through game artwork" width="360"></td>
+    <td align="center" width="50%"><strong>List</strong><br><img src="assets/previews/classic.gif" alt="List view with cover art and a rotating disc label" width="360"></td>
+    <td align="center" width="50%"><strong>Collections</strong><br><img src="assets/previews/collection.gif" alt="Collections view moving through game artwork" width="360"></td>
   </tr>
   <tr>
     <td align="center"><strong>Grid</strong><br><img src="assets/previews/grid.gif" alt="Grid view showing cover thumbnails and a selected game preview" width="360"></td>
@@ -233,34 +240,35 @@ The four artwork views are shown below. The previews use sample game artwork.
   </tr>
 </table>
 
-The **Orbs** view centers the spinning lights and their trails. The selected
-game name and controls remain below the animation; this view needs no artwork.
+The experimental Scroll view shows animated ambient orbs beside a scrolling
+title and logo display. The experimental Save Icons view uses a grid with a
+save-icon preview for the selected game.
 
 - **Cross:** launch the selected game.
-- **Triangle:** open the dedicated Options scene. Its tabs are **Game**,
-  **System**, **Views**, and **Orbs**. Collection opens it with a top pan;
-  the other views use a side pan.
-- **Classic layout:** open the **Views** tab, press **Cross** or **Circle**
-  on **Classic art layout** to choose Separate or Overlap, then press **Start**
+- **Triangle:** open Options. Its tabs are **Game**, **Global**, **Views**,
+  and **Orbs**.
+- **List layout:** open the **Views** tab, press **Cross** or **Circle**
+  on **List art layout** to choose Separate or Overlap, then press **Start**
   to save. Overlap places the spinning disc behind the cover, with its lower
   half hidden. The choice is saved for the library on that drive.
 - **Background orb colors:** in the **Orbs** tab, choose **Orb color** and
   **Tail color** separately with Left or Right, then press **Start** to save.
   Original keeps the existing colors. These choices affect only the shared
-  Ambient Orbs background; Orbit view, Orbs view, and the loading screen keep
+  Ambient Orbs background; Orbit view, Scroll view, and the loading screen keep
   their own colors. The Orbs tab is available only when **Ambient Orbs** is
-  selected as the System background; other backgrounds leave it dimmed and
+  selected as the Global background; other backgrounds leave it dimmed and
   skip it during tab navigation.
 - **PlayStation 2 logo:** the startup logo is **On** by default. In the
-  **System** tab, switch **PlayStation 2 logo** On or Off and press **Start** to
+  **Global** tab, switch **PlayStation 2 logo** On or Off and press **Start** to
   set the default for games on the current drive. A game that needs a different
   choice can use **Game → Video → Show PS2 logo**; save that game's choice with
-  **Start**. Its setting takes precedence over the System default.
-- **Start:** exit the library.
-- **Square in Classic:** add or remove the selected game from Favorites.
-- **Select in Classic or Collection:** switch between the full library and
+  **Start**. Its setting takes precedence over the Global default.
+- **Start:** open the main menu for File Explorer, Virtual Memory Cards,
+  Exit LUNA, and Shutdown.
+- **Square in List:** add or remove the selected game from Favorites.
+- **Select in List or Collections:** switch between the full library and
   Favorites.
-- **Collection:** Left/Up and Right/Down move between covers; holding a direction
+- **Collections:** Left/Up and Right/Down move between covers; holding a direction
   repeats. L1/R1 jump backward or forward by a list page. Hold L2/R2 to fast
   scan; quick L2/R2 taps do nothing.
 - **Square in Orbit:** start Random Scan. Any deliberate navigation
@@ -280,15 +288,22 @@ gameplay. In-game return has also been tested on a physical FAT PS2.
 LUNA continues to use OPL-compatible title IDs and PNG artwork names:
 
 ```text
-/ART/<TITLE_ID>_COV.png       140x200 cover used by Classic
-/ART/<TITLE_ID>_ICO.png       optional 64x64 transparent disc label used by Classic
-/ART/PSBBN/<TITLE_ID>.png     optional 256x256 square artwork for Collection, Grid, and Orbit
+/ART/<TITLE_ID>_COV.png       140x200 cover used by List
+/ART/<TITLE_ID>_ICO.png       optional 64x64 transparent disc label used by List
+/ART/PSBBN/<TITLE_ID>.png     optional 256x256 square artwork for Collections, Grid, and Orbit
+/ART/ORBS/<TITLE_ID>_LGO.png  optional logo for Scroll
+/ART/ORBS/<TITLE_ID>_BG.png   optional background for Scroll
+/ART/SAVEICON/<TITLE_ID>/preview.png    optional preview for Save Icons
+/ART/SAVEICON/<TITLE_ID>/spin/00.png    optional first animation frame for Save Icons
 ```
 
 Use
 [OrbitPS2 Manager — LUNA Edition](https://github.com/dnunezx/OrbitPS2-Manager-LUNA-edition)
-to obtain and prepare the square PSBBN artwork expected by Collection, Grid,
+to obtain and prepare the square PSBBN artwork expected by Collections, Grid,
 and Orbit.
+Save Icons looks for animation frames numbered `00.png` through `11.png` in
+the same `spin/` folder. Missing experimental-view artwork shows a text or
+placeholder graphic instead.
 
 ## Storage and configuration
 
@@ -313,20 +328,21 @@ Writable state stays with the game drive:
 
 LUNA saves the selected library view as `lastView.txt` whenever Circle switches
 views and restores it on the next start. A missing or invalid file starts in
-Classic. Swapping hard drives also swaps their library, artwork, Favorites,
+List. Swapping hard drives also swaps their library, artwork, Favorites,
 saved view, cache, and per-game configuration. Existing `/nhddl` cache and
 option files can still be read for migration, but new writes go to `/LUNA`.
 
 ## Source layout
 
-- `nhddl/`: frontend submodule from [nhddl-luna](https://github.com/dnunezx/nhddl-luna), pinned to its `luna` branch.
-- `neutrino/`: backend submodule from [neutrino-luna](https://github.com/dnunezx/neutrino-luna), pinned to its `master` branch.
+- `nhddl/`: frontend submodule from [nhddl-luna](https://github.com/dnunezx/nhddl-luna), configured for its `luna` branch.
+- `neutrino/`: backend submodule from [neutrino-luna](https://github.com/dnunezx/neutrino-luna), configured for its `master` branch.
 - `tools/`: local build, FMCB packaging, and package-verification helpers.
 - `LICENSES/`: licenses retained from upstream projects and dependencies.
 
 See [UPSTREAM.md](UPSTREAM.md) for exact source lineage and
 [AUTHORS.md](AUTHORS.md) for attribution. The installation layout is described
-above, and both forks are checked out with `git submodule update --init --recursive`.
+above. This repository pins exact commits for both submodules; check them out
+with `git submodule update --init --recursive`.
 
 ### Special thanks
 
