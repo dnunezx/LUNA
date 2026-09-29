@@ -12,8 +12,10 @@ adding a new library experience and a coordinated LUNA runtime.
 
 The current configuration is designed for an FMCB-hosted frontend and Neutrino
 runtime with games, artwork, and writable library state on an internal
-ATA/exFAT hard drive. Other game storage devices may work, but LUNA is
-optimized for and officially supports only an internal hard drive.
+ATA/exFAT hard drive. LUNA requires that drive for its intended library
+performance: slower storage can make artwork retrieval and cache misses visibly
+delay navigation. Other backends may boot games, but they are not supported for
+the complete LUNA experience.
 
 
 ## Requirements
@@ -148,16 +150,22 @@ root directory in the manager. LUNA uses the same title-ID conventions for
 OPL-compatible cover art.
 
 ### Game storage modes
-LUNA is configured to use only the internal ATA drive because initializing every
-available storage device adds time to startup, even when those devices aren’t
-being used. Keeping the scan focused on one device helps the library load faster
-and makes startup more predictable. Other game storage devices may work when
-their modes are enabled, but they are not officially supported.
 
-The supplied package is configured for an internal ATA/exFAT drive. LUNA's
-library scans ATA and HDL devices when available. USB, MX4SIO, MMCE, iLink,
-and UDPFS are scanned only when their `mode:` entry is explicitly enabled in
-`luna.yaml`.
+LUNA officially supports only an internal ATA/exFAT hard drive. During
+navigation, LUNA reads and decodes PNGs and maintains
+bounded artwork caches in EE memory and GS VRAM. Collection, Grid, and Orbit
+cannot keep an entire library resident, so moving to uncached titles or pages
+requires further reads from storage. The internal ATA HDD supplies the
+throughput and access times needed to fill those caches without prolonged
+pauses. Slower storage can leave covers loading behind the selection, delay
+page changes, and interrupt animation; launching an ISO alone does not establish
+that the library is functioning as intended.
+
+LUNA also scans title IDs and keeps a persistent cache, settings, and Favorites
+under `/LUNA` on the game drive. The packaged `luna.yaml` selects `mode: ata`
+so startup does not spend time initializing unused storage backends. NHDDL's
+other modes may still enumerate games when enabled, but LUNA's artwork-heavy
+library is supported only on the internal HDD.
 
 ### Virtual memory cards on the exFAT drive
 
@@ -166,14 +174,17 @@ file storage. APA/PFS drives can hold HDL games, but they do not appear in the
 VMC drive picker because VMC saving from PFS is not supported yet. Use a
 physical memory card for games launched from an APA drive.
 
-Open **Start → Virtual Memory Cards**, choose the drive that holds the game,
-and select **Create new card**. LUNA creates a formatted 8 MiB card named
+Open a game's **Options → Game → Virtual memory cards**. It shows **Disabled**
+until a virtual card is assigned to either slot. Press **Cross** to open the
+text-only submenu. Choose **Create new card** to make a formatted 8 MiB card named
 `LUNA_001.bin` (then `LUNA_002.bin`, and so on) in that drive's `/VMC` folder.
 Creation never replaces an existing image. You can also copy an existing raw
-OPL `.bin` card image into that folder. Open the game's **Options**, choose
-**VMC slot 1** or **VMC slot 2**, select the card, and press **Start** on the
-Game tab to save the assignment. Choose **Physical card** to turn VMC off for
-a slot.
+OPL `.bin` card image into that folder. Choose **VMC slot 1** or **VMC slot 2**,
+select a card, and press **Start** on the Game tab to save the assignment.
+Choose **Physical card** for an individual slot or **Disable virtual cards**
+to return both slots to physical cards. Card creation is immediate; slot
+assignments are saved with the Game tab. The main menu's **Virtual Memory
+Cards** manager remains available for creating cards across drives.
 
 Neutrino checks the card's superblock, page geometry, and file size before
 launch. It accepts raw 8, 16, 32, and 64 MiB images; images with separate ECC
@@ -238,7 +249,14 @@ game name and controls remain below the animation; this view needs no artwork.
   **Tail color** separately with Left or Right, then press **Start** to save.
   Original keeps the existing colors. These choices affect only the shared
   Ambient Orbs background; Orbit view, Orbs view, and the loading screen keep
-  their own colors.
+  their own colors. The Orbs tab is available only when **Ambient Orbs** is
+  selected as the System background; other backgrounds leave it dimmed and
+  skip it during tab navigation.
+- **PlayStation 2 logo:** the startup logo is **On** by default. In the
+  **System** tab, switch **PlayStation 2 logo** On or Off and press **Start** to
+  set the default for games on the current drive. A game that needs a different
+  choice can use **Game → Video → Show PS2 logo**; save that game's choice with
+  **Start**. Its setting takes precedence over the System default.
 - **Start:** exit the library.
 - **Square in Classic:** add or remove the selected game from Favorites.
 - **Select in Classic or Collection:** switch between the full library and
