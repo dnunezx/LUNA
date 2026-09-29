@@ -343,7 +343,7 @@ Thanks to **[NathanNeurotic (Ripto)](https://github.com/NathanNeurotic)**
 for helping with LUNA's ambient orbs, and to **[aap](https://github.com/aap/osdbits)**
 for reverse engineering parts of the PlayStation 2's OSDSYS in `osdbits`.
 
-Thanks to **[zackcage6](https://github.com/zackcage6)** for testing LUNA.
+Thanks to all of the LUNA beta testers.
 
 ## Repository contents
 
