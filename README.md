@@ -14,7 +14,7 @@ The current configuration is designed for an FMCB-hosted frontend and Neutrino
 runtime with games, artwork, and writable library state on an internal
 ATA/exFAT hard drive. LUNA requires that drive for its intended library
 performance: slower storage can make artwork retrieval and cache misses visibly
-delay navigation. Other backends may boot games, but they are not supported for
+delay navigation. Use other other storages may boot games, but they are not supported for
 the complete LUNA experience.
 
 
