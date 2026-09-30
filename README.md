@@ -169,6 +169,36 @@ so startup does not spend time initializing unused storage backends. NHDDL's
 other modes may still enumerate games when enabled, but LUNA's artwork-heavy
 library is supported only on the internal HDD.
 
+### Storage Devices menu
+
+Press **Start → Storage Devices** to choose which sources appear in the
+library: internal ATA/exFAT HDD, APA/HDLoader HDD, USB, MX4SIO, MMCE, iLink,
+and UDPFS. Internal ATA storage remains the packaged default. Connect storage
+before starting LUNA; live insertion and removal are not supported by this menu.
+
+- **Cross** toggles a source. Choose **Apply changes & scan** to save and refresh.
+- **Square** on an enabled source rescans that source while retaining the other
+  sources' games. **Rescan all enabled devices** refreshes the complete library.
+- **Circle** returns without applying pending edits.
+
+Each source shows its game count, no device found, or a scan failure. The menu
+also works when the library is empty. Preferences are written to `storage.cfg`
+beside the LUNA executable, normally on the FMCB memory card, independently of
+the game drives. Existing `luna.yaml` settings are used when no valid preferences
+exist; explicit launch arguments ignore saved preferences.
+
+MX4SIO and MMCE cannot be selected together. Changing the MX4SIO driver setup
+or the UDPFS address prompts LUNA to restart its storage drivers and reopen
+the library. A conflicting driver needed to access LUNA or Neutrino is protected.
+
+**UDPFS console IP address** sets the PS2's address, not the server's address.
+Use the controller keyboard and press Start to accept it; leave it empty to read
+`SYS-CONF/IPCONFIG.DAT` from a memory card. The effective address is passed to
+the matching LUNA Neutrino runtime when launching a network game. UDPFS requires
+working Ethernet and a running UDPFS server. iLink requires a console with an
+iLink port. Artwork performance on these optional sources still requires testing
+on physical hardware; the internal HDD remains the supported performance target.
+
 ### Virtual memory cards on the exFAT drive
 
 LUNA currently creates and assigns VMCs on exFAT and other supported local
@@ -265,15 +295,22 @@ save-icon preview for the selected game.
   **Start**. Its setting takes precedence over the Global default.
 - **Start:** open the main menu for File Explorer, Virtual Memory Cards,
   Exit LUNA, and Shutdown.
-- **Square in List:** add or remove the selected game from Favorites.
-- **Select in List or Collections:** switch between the full library and
-  Favorites.
+- **Hold R1:** open the quick menu in any library view. While holding R1,
+  use Up/Down to choose and Cross to confirm; release R1 to close without
+  choosing. The menu offers Show Favorites/Show All, Add/Remove from Favorites,
+  Options, and Random in Orbit. It slides in from the right, with button icons
+  beside Options and Random. R1 + Select switches the filter, R1 + Square adds/removes a
+  favorite, R1 + Triangle opens Options, and R1 + R3 starts Random in Orbit.
+  Navigation pauses while the menu is open.
+- **Square in List:** a shortcut to add or remove the selected game from Favorites.
+- **Select:** switch between the full library and Favorites in any library view.
 - **Collections:** Left/Up and Right/Down move between covers; holding a direction
-  repeats. L1/R1 jump backward or forward by a list page. Hold L2/R2 to fast
+  repeats. Hold L2/R2 to fast
   scan; quick L2/R2 taps do nothing.
 - **Square in Orbit:** start Random Scan. Any deliberate navigation
   input cancels it.
-- **L1/L2 or R1/R2 in Grid:** tap for one page or hold for fast-track paging.
+- **L2/R2 in List:** page backward/forward.
+- **L2/R2 in Grid and Save Icons:** tap for one page or hold for fast-track paging.
   Artwork loading resumes only at the final page when the buttons are released.
 
 Hold **L1 + L2 + R1 + R2 + Start + Select** for roughly one second to return

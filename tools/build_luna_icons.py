@@ -14,26 +14,6 @@ KENNEY = ROOT / "assets/kenney-input-prompts"
 LUNA_PROMPTS = ROOT / "assets/luna-prompts"
 
 
-def make_textless_button(name: str) -> Image.Image:
-    """Draw Luna's wordless Select rectangle or Start arrow at icon size."""
-    scale = 4
-    white = (255, 255, 255, 255)
-    icon = Image.new("RGBA", (SIZE * scale, SIZE * scale))
-    draw = ImageDraw.Draw(icon)
-    if name == "select":
-        draw.rounded_rectangle((3 * scale, 8 * scale, 22 * scale, 18 * scale),
-                               radius=2 * scale, outline=white, width=2 * scale)
-    elif name == "start":
-        points = [(4 * scale, 7 * scale), (22 * scale, 13 * scale),
-                  (4 * scale, 19 * scale)]
-        draw.line(points + points[:1], fill=white, width=2 * scale, joint="curve")
-        for x, y in points:
-            draw.ellipse((x - scale, y - scale, x + scale, y + scale), fill=white)
-    else:
-        raise ValueError(name)
-    return icon.resize((SIZE, SIZE), Image.Resampling.LANCZOS)
-
-
 def main() -> None:
     atlas = Image.new("RGBA", (128, 128))
     for name, x in (("circle", 0), ("cross", 27), ("square", 54), ("triangle", 81)):
@@ -50,10 +30,9 @@ def main() -> None:
     ):
         icon = Image.open(KENNEY / f"{name}.png").convert("RGBA")
         atlas.paste(icon.resize((SIZE, SIZE), Image.Resampling.LANCZOS), (x, y))
-    LUNA_PROMPTS.mkdir(exist_ok=True)
+    # Original NHDDL Start and Select artwork, kept at its native 22 x 12 size.
     for name, x in (("select", 0), ("start", 27)):
-        icon = make_textless_button(name)
-        icon.save(LUNA_PROMPTS / f"{name}.png")
+        icon = Image.open(LUNA_PROMPTS / f"{name}.png").convert("RGBA")
         atlas.paste(icon, (x, 56))
     ImageDraw.Draw(atlas).ellipse((81, 56, 90, 65), fill=(0, 184, 209, 255))
     atlas.save(ATLAS)
