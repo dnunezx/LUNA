@@ -33,6 +33,12 @@ tools/pcsx2*/
 emulation/art/**/*.png
 emulation/captures/
 
+# Local design reviews and unused concepts
+/assets/button-concepts/
+/assets/concepts/
+/tools/crt-button-review.html
+/tools/design_crt_buttons.py
+
 # Local or reverted source copies
 *.bak
 *.orig
