@@ -22,6 +22,7 @@ $launcher = Join-Path $dist $launcherName
 $launcherConfig = Join-Path $workspace 'nhddl/examples/luna.yaml'
 $ambientAsset = Join-Path $workspace 'nhddl/assets/ambient.wav'
 $neutrinoRoot = Join-Path $workspace 'neutrino/ee/loader'
+$oplPayloadRoot = Join-Path $workspace 'build-opl-ata'
 $packageReadme = Join-Path $workspace 'README.md'
 $required = @(
     $launcher,
@@ -58,6 +59,9 @@ Copy-Item -LiteralPath (Join-Path $neutrinoRoot 'neutrino.elf') -Destination $ap
 Copy-Item -LiteralPath (Join-Path $neutrinoRoot 'version.txt') -Destination $app
 Copy-Item -LiteralPath (Join-Path $neutrinoRoot 'config') -Destination $app -Recurse
 Copy-Item -LiteralPath (Join-Path $neutrinoRoot 'modules') -Destination $app -Recurse
+if (Test-Path -LiteralPath (Join-Path $oplPayloadRoot 'ee_core.elf')) {
+    Copy-Item -LiteralPath $oplPayloadRoot -Destination (Join-Path $app 'opl') -Recurse
+}
 $packageReadmeText = [IO.File]::ReadAllText($packageReadme)
 if ($Version) {
     $packageReadmeText = [regex]::Replace(
