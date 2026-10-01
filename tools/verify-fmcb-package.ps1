@@ -22,7 +22,15 @@ $required = @(
     'config/system.toml',
     'config/bsd-ata.toml',
     'modules/ata_bd.irx',
-    'modules/ee_core.elf'
+    'modules/ee_core.elf',
+    'opl/ee_core.elf',
+    'opl/bdm_ata_cdvdman.irx',
+    'opl/cdvdfsv.irx',
+    'opl/eesync-nano.irx',
+    'opl/IOPRP.img',
+    'opl/udnl.irx',
+    'opl/imgdrv.irx',
+    'opl/resetspu.irx'
 )
 
 foreach ($relative in $required) {
