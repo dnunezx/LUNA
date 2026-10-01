@@ -1,0 +1,7 @@
+Optional ambient music for LUNA
+
+LUNA works without this file. To add background music, copy ambient.wav from
+this folder into APP_LUNA on your PS2 memory card. The installed path should be
+mc0:/APP_LUNA/ambient.wav (or mc1:/APP_LUNA/ambient.wav if LUNA is on slot 2).
+
+Copy only ambient.wav into APP_LUNA. Do not copy this add-on folder there.

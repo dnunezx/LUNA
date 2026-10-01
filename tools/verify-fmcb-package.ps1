@@ -14,6 +14,7 @@ if ([string]::IsNullOrWhiteSpace($PackagePath)) {
 
 $package = (Resolve-Path -LiteralPath $PackagePath).Path
 $app = Join-Path $package 'APP_LUNA'
+$ambientAddon = Join-Path $package 'Ambient-Music-Add-On'
 $required = @(
     'luna.elf',
     'luna.yaml',
@@ -40,9 +41,15 @@ foreach ($relative in $required) {
     }
 }
 
-$ambientPath = Join-Path $app 'ambient.wav'
+$ambientPath = Join-Path $ambientAddon 'ambient.wav'
+if (Test-Path -LiteralPath (Join-Path $app 'ambient.wav')) {
+    throw 'The optional ambient soundtrack must not be preinstalled in APP_LUNA.'
+}
 if (-not (Test-Path -LiteralPath $ambientPath -PathType Leaf)) {
-    throw 'Missing memory-card ambient soundtrack.'
+    throw 'Missing optional ambient soundtrack in the add-on folder.'
+}
+if (-not (Test-Path -LiteralPath (Join-Path $ambientAddon 'INSTALL.txt') -PathType Leaf)) {
+    throw 'Missing ambient music add-on installation instructions.'
 }
 if ((Get-Item -LiteralPath $ambientPath).Length -gt 2MB) {
     throw 'Memory-card ambient soundtrack exceeds the 2 MB package limit.'
@@ -63,7 +70,7 @@ foreach ($forbidden in @('ART', 'favorites.txt', 'cache.bin', 'lastTitle.bin', '
     }
 }
 if (Test-Path -LiteralPath (Join-Path $package 'ATA/LUNA/ambient.wav')) {
-    throw 'The soundtrack must be packaged with APP_LUNA on the memory card.'
+    throw 'The soundtrack must be provided only as an optional add-on.'
 }
 
 $checksumPath = Join-Path $package 'SHA256SUMS.txt'
