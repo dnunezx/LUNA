@@ -6,7 +6,3 @@
 	path = nhddl
 	url = https://github.com/dnunezx/nhddl-luna.git
 	branch = luna
-[submodule "opl"]
-	path = opl
-	url = https://github.com/dnunezx/Open-PS2-Loader.git
-	branch = opl-luna

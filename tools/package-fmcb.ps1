@@ -24,12 +24,6 @@ $launcherConfig = Join-Path $workspace 'nhddl/examples/luna.yaml'
 $ambientAsset = Join-Path $workspace 'nhddl/assets/ambient.wav'
 $ambientInstructions = Join-Path $workspace 'tools/ambient-music-addon.txt'
 $neutrinoRoot = Join-Path $workspace 'neutrino/ee/loader'
-$oplPayloadRoot = Join-Path $workspace 'build-opl-ata'
-$oplRuntimeFiles = @(
-    'ee_core.elf', 'bdm_ata_cdvdman.irx', 'cdvdfsv.irx',
-    'eesync-nano.irx', 'IOPRP.img', 'udnl.irx',
-    'imgdrv.irx', 'resetspu.irx'
-)
 $packageReadme = Join-Path $workspace 'README.md'
 $required = @(
     $launcher,
@@ -42,7 +36,6 @@ $required = @(
     (Join-Path $neutrinoRoot 'modules/ee_core.elf'),
     $packageReadme
 )
-$required += @($oplRuntimeFiles | ForEach-Object { Join-Path $oplPayloadRoot $_ })
 
 foreach ($path in $required) {
     if (-not (Test-Path -LiteralPath $path)) {
@@ -70,10 +63,6 @@ Copy-Item -LiteralPath (Join-Path $neutrinoRoot 'neutrino.elf') -Destination $ap
 Copy-Item -LiteralPath (Join-Path $neutrinoRoot 'version.txt') -Destination $app
 Copy-Item -LiteralPath (Join-Path $neutrinoRoot 'config') -Destination $app -Recurse
 Copy-Item -LiteralPath (Join-Path $neutrinoRoot 'modules') -Destination $app -Recurse
-New-Item -ItemType Directory -Path (Join-Path $app 'opl') -Force | Out-Null
-foreach ($name in $oplRuntimeFiles) {
-    Copy-Item -LiteralPath (Join-Path $oplPayloadRoot $name) -Destination (Join-Path $app 'opl')
-}
 $packageReadmeText = [IO.File]::ReadAllText($packageReadme)
 if ($Version) {
     $packageReadmeText = [regex]::Replace(

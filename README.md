@@ -227,19 +227,16 @@ still required to establish game compatibility.
 
 ## Per-game video output
 
-Open **Options → Game → Video → Video out** for separate **Neutrino** and
-**OPL** tabs. Left/right changes tabs, up/down selects a mode, and Cross
-enables it. Selecting an enabled mode again returns to **Default**, which
-keeps the game's original output. Press **Start** to save;
+Open **Options → Game → Video → Video out**. Up/down selects a mode, and
+Cross enables it. Selecting an enabled mode again returns to **Default**,
+which keeps the game's original output. Press **Start** to save;
 **Triangle** returns to the Video submenu.
 
-Neutrino offers 240p/288p, 480p/576p, and three 1080i scaling presets. The
-ATA-only OPL core offers its 29 GSM presets, including NTSC/PAL, HDTV, PS1,
-and VGA output modes. Choices are stored separately and used by the core
-selected in **Launch & debug → Game core**. Field flipping in the Video
-submenu uses that selected core's settings. Existing forced output settings
-are preserved. These options change video output, without automatically
-increasing a game's internal rendering resolution.
+Neutrino offers 240p/288p, 480p/576p, and three 1080i scaling presets.
+Field flipping in the Video submenu applies to the selected output mode.
+These options change video output without automatically increasing a game's
+internal rendering resolution. Neutrino is the sole game-launch backend;
+saved settings for the removed OPL core are ignored.
 
 ## What LUNA adds
 

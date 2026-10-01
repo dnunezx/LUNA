@@ -15,6 +15,9 @@ if ([string]::IsNullOrWhiteSpace($PackagePath)) {
 $package = (Resolve-Path -LiteralPath $PackagePath).Path
 $app = Join-Path $package 'APP_LUNA'
 $ambientAddon = Join-Path $package 'Ambient-Music-Add-On'
+if (Test-Path -LiteralPath (Join-Path $app 'opl')) {
+    throw 'The removed OPL core must not be included in APP_LUNA.'
+}
 $required = @(
     'luna.elf',
     'luna.yaml',
@@ -23,15 +26,7 @@ $required = @(
     'config/system.toml',
     'config/bsd-ata.toml',
     'modules/ata_bd.irx',
-    'modules/ee_core.elf',
-    'opl/ee_core.elf',
-    'opl/bdm_ata_cdvdman.irx',
-    'opl/cdvdfsv.irx',
-    'opl/eesync-nano.irx',
-    'opl/IOPRP.img',
-    'opl/udnl.irx',
-    'opl/imgdrv.irx',
-    'opl/resetspu.irx'
+    'modules/ee_core.elf'
 )
 
 foreach ($relative in $required) {
