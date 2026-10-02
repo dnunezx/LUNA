@@ -1,18 +1,22 @@
 # Original LUNA code: Danny Nunez (dnunezx) 2026
 [CmdletBinding()]
 param(
-    [string]$Version = ''
+    [string]$Version = '',
+    [string]$LocalTest = ''
 )
 
 $ErrorActionPreference = 'Stop'
+if ($LocalTest -and ($Version -or $LocalTest -notmatch '^[0-9]{8}-[0-9a-f]{7,12}(?:-dirty)?$')) {
+    throw 'LocalTest must be YYYYMMDD-commit[-dirty], and cannot be combined with Version.'
+}
 if ($Version -and $Version -notmatch '^v[0-9]+\.[0-9]+\.[0-9]+(?:-rc\.[0-9]+|-beta(?:\.[0-9]+)?)?$') {
     throw "Invalid version: $Version (expected vMAJOR.MINOR.PATCH, -rc.N, or -beta[.N])."
 }
 
 $workspace = Split-Path -Parent $PSScriptRoot
 $dist = Join-Path $workspace 'dist'
-$packageName = if ($Version) { "LUNA-$Version-FMCB-mc0" } else { 'LUNA-FMCB-mc0' }
-$launcherName = if ($Version) { "LUNA-$Version.elf" } else { 'LUNA-Release-Candidate.elf' }
+$packageName = if ($LocalTest) { "LUNA-local-test-$LocalTest-FMCB-mc0" } elseif ($Version) { "LUNA-$Version-FMCB-mc0" } else { 'LUNA-FMCB-mc0' }
+$launcherName = if ($LocalTest) { "LUNA-local-test-$LocalTest.elf" } elseif ($Version) { "LUNA-$Version.elf" } else { 'LUNA-Release-Candidate.elf' }
 $archiveName = "$packageName.zip"
 $package = Join-Path $dist $packageName
 $app = Join-Path $package 'APP_LUNA'
