@@ -218,12 +218,19 @@ working Ethernet and a running UDPFS server. iLink requires a console with an
 iLink port. Artwork performance on these optional sources still requires testing
 on physical hardware; the internal HDD remains the supported performance target.
 
-### Virtual memory cards on the exFAT drive
+### Virtual memory cards on exFAT and APA/PFS drives
 
 LUNA currently creates and assigns VMCs on exFAT and other supported local
-file storage. APA/PFS drives can hold HDL games, but they do not appear in the
-VMC drive picker because VMC saving from PFS is not supported yet. Use a
-physical memory card for games launched from an APA drive.
+file storage, including APA/PFS drives used for HDL games. APA drives appear in
+the VMC drive picker when their PFS metadata partition is mounted. Cards use
+that partition's `/VMC` folder, or `/OPL/VMC` when the metadata is stored on
+`__common`.
+
+APA/PFS VMCs use the matching bundled Neutrino runtime and require normal boot,
+8 KiB PFS zones, and card files whose direct extents fit the shared 64-fragment
+limit across the game and both card images. Quick boot, other PFS zone sizes,
+and files requiring indirect inode segments are not supported. Neutrino
+validates the mapping before allowing card reads and writes.
 
 Open a game's **Options → Game → Virtual memory cards**. It shows **Disabled**
 until a virtual card is assigned to either slot. Press **Cross** to open its
