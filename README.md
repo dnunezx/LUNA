@@ -172,21 +172,7 @@ OPL-compatible cover art.
 
 ### Game storage modes
 
-LUNA officially supports only an internal ATA/exFAT hard drive. During
-navigation, LUNA reads and decodes PNGs and maintains
-bounded artwork caches in EE memory and GS VRAM. Artwork-heavy views
-cannot keep an entire library resident, so moving to uncached titles or pages
-requires further reads from storage. The internal ATA HDD supplies the
-throughput and access times needed to fill those caches without prolonged
-pauses. Slower storage can leave covers loading behind the selection, delay
-page changes, and interrupt animation; launching an ISO alone does not establish
-that the library is functioning as intended.
-
-LUNA also scans title IDs and keeps a persistent cache, settings, and Favorites
-under `/LUNA` on the game drive. The packaged `luna.yaml` selects `mode: ata`
-so startup does not spend time initializing unused storage backends. NHDDL's
-other modes may still enumerate games when enabled, but LUNA's artwork-heavy
-library is supported only on the internal HDD.
+Internal ATA/exFAT HDD remains the supported performance target.
 
 ### Storage Devices menu
 
