@@ -252,7 +252,6 @@ both the NHDDL-derived frontend and the Neutrino-derived game runtime.
 | Orbit view | A depth-sorted ring of covers with perspective, fading, shared artwork caching, and a Square-button Random Scan that avoids reselecting the current title. |
 | Scroll view (experimental) | A scrolling title and logo display alongside animated ambient orbs. |
 | Favorites | Per-drive Favorites stored in `/LUNA/favorites.txt`, shared by List and Collections without modifying the game library. |
-| Genre metadata | Reads and groups optional `Genre=` values from each game's OPL CFG without changing launch paths or title IDs. |
 | Artwork | OPL-compatible covers plus optional disc labels and PSBBN-style square artwork, with view-specific caching and GS VRAM recovery. |
 | Configured storage scan | The library scans ATA and HDL when available. USB, MX4SIO, MMCE, iLink, and UDPFS require explicit `mode:` entries. The shipped configuration uses internal ATA/exFAT and avoids waiting for a nonexistent second mass-storage device. |
 | Safer persistent state | LUNA writes cache, last-title, global options, and per-title settings under `/LUNA`, reads legacy `/nhddl` state as a fallback, bounds stored paths, and replaces key files only after a complete temporary write. |
