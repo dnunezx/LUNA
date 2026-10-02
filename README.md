@@ -28,7 +28,8 @@ have fewer features if the source has changed since that release.
   [OrbitPS2 Manager — LUNA Edition](https://github.com/dnunezx/OrbitPS2-Manager-LUNA-edition)
   to prepare the drive and obtain the PSBBN artwork.
 
-## Installation
+<details>
+<summary><strong>Installation</strong></summary>
 
 These steps assume you already have a working FMCB memory card, a PS2
 controller, and a USB flash drive that your PS2 can read. LUNA is copied to the
@@ -111,7 +112,10 @@ card space, exit LUNA and remove only `ambient.wav` from `APP_LUNA` with the
 file manager. When upgrading from a version that included music, an existing
 `ambient.wav` may remain installed; remove it if you want to use LUNA without music.
 
-## Preparing the game drive
+</details>
+
+<details>
+<summary><strong>Preparing the game drive</strong></summary>
 
 Prepare the ATA/exFAT drive on a computer before launching LUNA. The easiest
 way is to use [OrbitPS2 Manager — LUNA Edition](https://github.com/dnunezx/OrbitPS2-Manager-LUNA-edition).
@@ -236,21 +240,10 @@ bytes or a mismatched length are rejected. Back up an existing OPL card before
 its first LUNA save. A complete save, reboot, and reload on a physical PS2 is
 still required to establish game compatibility.
 
+</details>
 
-## Per-game video output
-
-Open **Options → Game → Video → Video out**. Up/down selects a mode, and
-Cross enables it. Selecting an enabled mode again returns to **Default**,
-which keeps the game's original output. Press **Start** to save;
-**Triangle** returns to the Video submenu.
-
-Neutrino offers 240p/288p, 480p/576p, and three 1080i scaling presets.
-Field flipping in the Video submenu applies to the selected output mode.
-These options change video output without automatically increasing a game's
-internal rendering resolution. Neutrino is the sole game-launch backend;
-saved settings for the removed OPL core are ignored.
-
-## What LUNA adds
+<details>
+<summary><strong>What LUNA adds</strong></summary>
 
 LUNA is more than a visual rename of NHDDL. It contains coordinated changes to
 both the NHDDL-derived frontend and the Neutrino-derived game runtime.
@@ -271,6 +264,21 @@ both the NHDDL-derived frontend and the Neutrino-derived game runtime.
 | In-game return | Hold L1 + L2 + R1 + R2 + Start + Select for roughly one second to return from a game to the configured LUNA ELF. This has been tested on a physical FAT PS2. |
 | Return safety | The Neutrino runtime coordinates optical and DEV9 shutdown before handing off to the configured return path. |
 | Physical power button | LUNA adds a dedicated IOP-side safe-shutdown path. It coordinates DEV9 shutdown before issuing the standard power-off command, preserving the console's normal power-off behavior. |
+
+### Per-game video output
+
+Open **Options → Game → Video → Video out**. Up/down selects a mode, and
+Cross enables it. Selecting an enabled mode again returns to **Default**,
+which keeps the game's original output. Press **Start** to save;
+**Triangle** returns to the Video submenu.
+
+Neutrino offers 240p/288p, 480p/576p, and three 1080i scaling presets.
+Field flipping in the Video submenu applies to the selected output mode.
+These options change video output without automatically increasing a game's
+internal rendering resolution. Neutrino is the sole game-launch backend;
+saved settings for the removed OPL core are ignored.
+
+</details>
 
 ## Library views and controls
 
