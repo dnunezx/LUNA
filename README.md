@@ -358,7 +358,6 @@ LUNA continues to use OPL-compatible title IDs and PNG artwork names:
 /ART/<TITLE_ID>_ICO.png       optional 64x64 transparent disc label used by List
 /ART/PSBBN/<TITLE_ID>.png     optional 256x256 square artwork for Collections and Orbit
 /ART/ORBS/<TITLE_ID>_LGO.png  optional logo for Scroll
-/ART/ORBS/<TITLE_ID>_BG.png   optional background for Scroll
 ```
 
 Use
