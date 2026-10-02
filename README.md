@@ -21,7 +21,7 @@ have fewer features if the source has changed since that release.
 
 - **Compatible PlayStation 2:** hardware testing has been done on a fat model PS2.
 - **FMCB memory card:** with enough space for the LUNA application.
-- **Internal ATA/exFAT hard drive:** an HDD with an MBR or GPT partition table and an exFAT partition. This is the optimized and officially supported game storage setup.
+- **Internal ATA/exFAT hard drive:** an HDD with an MBR or GPT partition table and an exFAT partition. This is the optimized game storage setup.
 - **Network adapter or HDD bridge:** all hardware testing was done with a GameStar PS2 SATA HDD Adapter.
 - **Artwork:** artwork is optional and is not required to launch an
   ISO. For the complete library presentation use
