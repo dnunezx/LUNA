@@ -363,7 +363,7 @@ LUNA continues to use OPL-compatible title IDs and PNG artwork names:
 Use
 [OrbitPS2 Manager — LUNA Edition](https://github.com/dnunezx/OrbitPS2-Manager-LUNA-edition)
 to obtain and prepare the square PSBBN artwork expected by Collections and Orbit.
-Missing Scroll artwork shows a text or placeholder graphic instead.
+Missing Scroll logos show the game title as text instead.
 
 ## Storage and configuration
 
