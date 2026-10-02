@@ -245,14 +245,14 @@ both the NHDDL-derived frontend and the Neutrino-derived game runtime.
 
 | Area | LUNA addition |
 | --- | --- |
-| Library interface | A PS2-inspired glass interface with animated stars and crystals, LUNA branding, six selectable library views, and a dedicated Options screen. |
+| Library interface | A PS2-inspired glass interface with animated stars and crystals, LUNA branding, five selectable library views, and a dedicated Options screen. |
 | List view | A list-and-cover layout with a rotating disc label, Favorites controls, and paired cover/disc artwork. |
 | Collections view | A PSBBN-inspired cover flow with animated focus changes and a Collections/Favorites filter. |
-| Grid view | A 4x4 artwork grid with paged caching, row-cascade transitions, large selected-cover preview, and fast-track shoulder navigation. |
+| 3D view | A 6x4 display of projected game cases with a large selected-cover preview, focus zoom and turn, a clear-sleeve shimmer, scrolling titles, and a short entrance animation. |
 | Orbit view | A depth-sorted ring of covers with perspective, fading, shared artwork caching, and a Square-button Random Scan that avoids reselecting the current title. |
 | Scroll view (experimental) | A scrolling title and logo display alongside animated ambient orbs. |
-| Save Icons view (experimental) | A grid layout with a save-icon preview for the selected game. |
 | Favorites | Per-drive Favorites stored in `/LUNA/favorites.txt`, shared by List and Collections without modifying the game library. |
+| Genre metadata | Reads and groups optional `Genre=` values from each game's OPL CFG without changing launch paths or title IDs. |
 | Artwork | OPL-compatible covers plus optional disc labels and PSBBN-style square artwork, with view-specific caching and GS VRAM recovery. |
 | Configured storage scan | The library scans ATA and HDL when available. USB, MX4SIO, MMCE, iLink, and UDPFS require explicit `mode:` entries. The shipped configuration uses internal ATA/exFAT and avoids waiting for a nonexistent second mass-storage device. |
 | Safer persistent state | LUNA writes cache, last-title, global options, and per-title settings under `/LUNA`, reads legacy `/nhddl` state as a fallback, bounds stored paths, and replaces key files only after a complete temporary write. |
@@ -263,14 +263,13 @@ both the NHDDL-derived frontend and the Neutrino-derived game runtime.
 
 ## Library views and controls
 
-Press **Circle** to cycle through enabled views. **List**, **Collections**, and
-**Orbit** are enabled by default. The **Views** tab in Options can also enable
-**Scroll**, **Grid**, and **Save Icons**; Scroll and Save Icons are marked
-experimental.
+Press **Circle** to cycle through enabled views. **List**, **Collections**,
+**Orbit**, and **3D** are enabled by default. The **Views** tab in Options can
+also enable **Scroll**, which is marked experimental.
 
 ### Views in motion
 
-Four views are shown below using sample game artwork.
+Three views are shown below using sample game artwork.
 
 <table>
   <tr>
@@ -278,14 +277,13 @@ Four views are shown below using sample game artwork.
     <td align="center" width="50%"><strong>Collections</strong><br><img src="assets/previews/collection.gif" alt="Collections view moving through game artwork" width="360"></td>
   </tr>
   <tr>
-    <td align="center"><strong>Grid</strong><br><img src="assets/previews/grid.gif" alt="Grid view showing cover thumbnails and a selected game preview" width="360"></td>
     <td align="center"><strong>Orbit</strong><br><img src="assets/previews/orbit.gif" alt="Orbit view moving through a ring of game covers" width="360"></td>
   </tr>
 </table>
 
-The experimental Scroll view shows animated ambient orbs beside a scrolling
-title and logo display. The experimental Save Icons view uses a grid with a
-save-icon preview for the selected game.
+The 3D view displays game cases in four rows and turns the selected case toward
+the viewer. The experimental Scroll view shows animated ambient orbs beside a
+scrolling title and logo display.
 
 - **Cross:** launch the selected game.
 - **Triangle:** open Options. Its tabs are **Game**, **Global**, **Views**,
@@ -323,8 +321,7 @@ save-icon preview for the selected game.
 - **Square in Orbit:** start Random Scan. Any deliberate navigation
   input cancels it.
 - **L2/R2 in List:** page backward/forward.
-- **L2/R2 in Grid and Save Icons:** tap for one page or hold for fast-track paging.
-  Artwork loading resumes only at the final page when the buttons are released.
+- **L2/R2 in 3D:** move backward or forward one page.
 
 Hold **L1 + L2 + R1 + R2 + Start + Select** for roughly one second to return
 from a game to LUNA. The default FMCB configuration targets
@@ -340,20 +337,15 @@ LUNA continues to use OPL-compatible title IDs and PNG artwork names:
 ```text
 /ART/<TITLE_ID>_COV.png       140x200 cover used by List
 /ART/<TITLE_ID>_ICO.png       optional 64x64 transparent disc label used by List
-/ART/PSBBN/<TITLE_ID>.png     optional 256x256 square artwork for Collections, Grid, and Orbit
+/ART/PSBBN/<TITLE_ID>.png     optional 256x256 square artwork for Collections and Orbit
 /ART/ORBS/<TITLE_ID>_LGO.png  optional logo for Scroll
 /ART/ORBS/<TITLE_ID>_BG.png   optional background for Scroll
-/ART/SAVEICON/<TITLE_ID>/preview.png    optional preview for Save Icons
-/ART/SAVEICON/<TITLE_ID>/spin/00.png    optional first animation frame for Save Icons
 ```
 
 Use
 [OrbitPS2 Manager — LUNA Edition](https://github.com/dnunezx/OrbitPS2-Manager-LUNA-edition)
-to obtain and prepare the square PSBBN artwork expected by Collections, Grid,
-and Orbit.
-Save Icons looks for animation frames numbered `00.png` through `11.png` in
-the same `spin/` folder. Missing experimental-view artwork shows a text or
-placeholder graphic instead.
+to obtain and prepare the square PSBBN artwork expected by Collections and Orbit.
+Missing Scroll artwork shows a text or placeholder graphic instead.
 
 ## Storage and configuration
 
