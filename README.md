@@ -92,6 +92,25 @@ The packaged configuration is for the memory card in slot 1 (`mc0:`). For a
 card installed in slot 2, use `mc1:/APP_LUNA/luna.elf` in the FMCB menu and
 change `return_path` in `luna.yaml` from `mc0:` to `mc1:`.
 
+### Optional background music
+
+Music is now optional. The release ZIP includes the soundtrack in a separate
+`Ambient-Music-Add-On` folder. Installing only `APP_LUNA` leaves music out and
+uses less memory-card space; LUNA works normally without it.
+
+1. To add music, copy `ambient.wav` from `Ambient-Music-Add-On` to the USB
+   drive, then use uLaunchELF or wLaunchELF to copy that file into the installed
+   `mc0:/APP_LUNA` folder. For slot 2, use `mc1:/APP_LUNA`.
+2. Check that the installed file is `mc0:/APP_LUNA/ambient.wav`. Copy only the
+   file, not the entire add-on folder. It needs about 1.3 MB of extra card space.
+3. Restart LUNA. Press **Triangle → Global**, set **Ambient sound** to **On**,
+   and press **Start** to save.
+
+To mute music, set **Ambient sound** to **Off** and save. To reclaim the extra
+card space, exit LUNA and remove only `ambient.wav` from `APP_LUNA` with the
+file manager. When upgrading from a version that included music, an existing
+`ambient.wav` may remain installed; remove it if you want to use LUNA without music.
+
 ## Preparing the game drive
 
 Prepare the ATA/exFAT drive on a computer before launching LUNA. The easiest
