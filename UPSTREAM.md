@@ -13,9 +13,12 @@ The active LUNA frontend is maintained in `dnunezx/nhddl-luna` on its `luna`
 branch. The active backend is maintained in `dnunezx/neutrino-luna` on its
 `master` branch. LUNA `main` links these two as submodules and pins their
 exact commits; the base revisions above document the original upstream lineage.
-Neutrino is the sole game-launch backend. OPL-derived artwork assets and VMC
-formatting retain their source notices and AFL-3.0 license; no OPL core is built
-or packaged.
+Neutrino is the sole game-launch backend; no standalone OPL launch core is built
+or packaged. Neutrino's controller hooks, game patches, and disc-emulation
+modules include OPL-derived code. That code, the VMC formatter, and retained
+artwork lineage keep their source notices and AFL-3.0 license.
+The AFL-3.0 terms for this lineage are included in
+`LICENSES/NHDDL-AFL-3.0.txt`; a duplicate license file is not needed.
 The Neutrino fork renames the private in-memory IOPRP device to avoid colliding
 with PCSX2 HostFS.
 

@@ -276,7 +276,7 @@ Neutrino offers 240p/288p, 480p/576p, and three 1080i scaling presets.
 Field flipping in the Video submenu applies to the selected output mode.
 These options change video output without automatically increasing a game's
 internal rendering resolution. Neutrino is the sole game-launch backend;
-saved settings for the removed OPL core are ignored.
+obsolete core-selection settings are ignored.
 
 </details>
 
