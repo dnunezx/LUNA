@@ -21,6 +21,13 @@ dist/
 # Local emulation and test assets
 /emulation/
 /neutrino/lab/
+/tests/
+/test-data/
+/fixtures/
+/diagnostics/
+/captures/
+/tools/inspect-runtime-locks.py
+/tools/verify-fmcb-package.ps1
 backups/
 hdd/
 tools/pcsx2*/
@@ -28,6 +35,9 @@ tools/pcsx2*/
 *.iso
 *.bin
 *.log
+*.img
+*.dmp
+*.trace
 
 # Downloaded artwork and generated captures
 emulation/art/**/*.png

@@ -2,7 +2,7 @@
   <img src="assets/luna-logo.svg" alt="LUNA logo" width="700">
 </p>
 
-LUNA (**Layered Unified Neutrino Architecture**) is a visual PS2 loader derived
+LUNA (**Lightweight Unified Neutrino Access**) is a visual PS2 loader derived
 from [NHDDL](https://github.com/pcm720/nhddl) and
 [Neutrino](https://github.com/rickgaiser/neutrino). It preserves NHDDL's
 established ISO discovery, title configuration, and Neutrino launch path while
@@ -396,8 +396,11 @@ option files can still be read for migration, but new writes go to `/LUNA`.
 
 - `nhddl/`: frontend submodule from [nhddl-luna](https://github.com/dnunezx/nhddl-luna), configured for its `luna` branch.
 - `neutrino/`: backend submodule from [neutrino-luna](https://github.com/dnunezx/neutrino-luna), configured for its `master` branch.
-- `tools/`: local build, FMCB packaging, and package-verification helpers.
+- `tools/`: build, artwork generation, and FMCB packaging helpers.
 - `LICENSES/`: licenses retained from upstream projects and dependencies.
+
+Test suites, fixtures, emulator setup, diagnostic tools, and captured results
+are kept locally and ignored in each repository, including the submodules.
 
 See [UPSTREAM.md](UPSTREAM.md) for exact source lineage and
 [AUTHORS.md](AUTHORS.md) for attribution. The installation layout is described
