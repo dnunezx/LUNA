@@ -79,3 +79,22 @@ Thumbs.db
 *.p12
 .env
 .env.*
+
+# Tests, diagnostics, and captures are local only.
+local/
+tests/
+test-data/
+fixtures/
+lab/
+diagnostics/
+captures/
+emulation/
+*.raw
+*.iso
+*.img
+*.bin
+*.log
+*.trace
+*.dmp
+*.bak
+/tools/verify-fmcb-package.ps1
