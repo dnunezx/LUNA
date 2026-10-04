@@ -48,10 +48,6 @@ env = ["EE"]
 #env = ["EE"]
 
 #[[module]]
-#file = "memcheck.irx"
-#env = ["EE"]
-
-#[[module]]
 #file = "patch_membo.irx"
 #env = ["EE"]
 

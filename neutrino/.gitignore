@@ -27,3 +27,15 @@ releases/
 !.gitignore
 
 CLAUDE.md
+
+# Local diagnostic files and developer overrides.
+local/
+/ee/loader/config/bsd-usb-debug.toml
+/iop/memcheck/Makefile
+/iop/memcheck/src/imports.lst
+/iop/memcheck/src/ioplib.c
+/iop/memcheck/src/ioplib.h
+/iop/memcheck/src/irx_imports.h
+/iop/memcheck/src/main.c
+/iop/ministack/include/udptty.h
+/iop/ministack/src/udptty.c

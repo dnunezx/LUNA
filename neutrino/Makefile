@@ -16,7 +16,6 @@ clean:
 	$(MAKE) -C iop/hdlfs         clean
 	$(MAKE) -C iop/imgdrv        clean
 	$(MAKE) -C iop/mc_emu        clean
-	$(MAKE) -C iop/memcheck      clean
 	$(MAKE) -C iop/patch_freemem clean
 	$(MAKE) -C iop/patch_membo   clean
 	$(MAKE) -C iop/patch_rc_uya  clean
@@ -45,7 +44,6 @@ all:
 	$(MAKE) -C iop/hdlfs         all DEBUG=$(IOPCORE_DEBUG)
 	$(MAKE) -C iop/imgdrv        all DEBUG=$(IOPCORE_DEBUG)
 	$(MAKE) -C iop/mc_emu        all DEBUG=$(IOPCORE_DEBUG)
-	$(MAKE) -C iop/memcheck      all DEBUG=1
 	$(MAKE) -C iop/patch_freemem all DEBUG=$(IOPCORE_DEBUG)
 	$(MAKE) -C iop/patch_membo   all DEBUG=$(IOPCORE_DEBUG)
 	$(MAKE) -C iop/patch_rc_uya  all DEBUG=$(IOPCORE_DEBUG)
@@ -104,41 +102,13 @@ copy:
 
 copy_extra:
 	cp iop/gapfill/irx/gapfill.irx             ee/loader/modules
-	cp iop/memcheck/irx/memcheck.irx           ee/loader/modules
 	cp iop/usbd_null/irx/usbd_null.irx         ee/loader/modules
 
 format:
 	find . -type f -a \( -iname \*.h -o -iname \*.c \) | xargs clang-format -i
 
-# Start on PS2 (ps2link/ps2client)
-run: all copy copy_extra
-	$(MAKE) -C ee/loader run
-
-# Start on PS2 (ps2link/ps2client), using mmce device and quickboot
-run_mmce_qb: all copy copy_extra
-	$(MAKE) -C ee/loader run_mmce_qb
-
-# Copy neutrino to UDPBD shared drive, then run nhddl
-UDPBD_BD = /dev/zd0p1
-run_nhddl: all copy copy_extra
-	mkdir -p temp
-	sudo mount $(UDPBD_BD) temp
-	sudo cp    README.md              temp
-	sudo cp -R ee/loader/config       temp
-	sudo cp -R ee/loader/modules      temp
-	sudo cp    ee/loader/neutrino.elf temp
-	sudo cp    ee/loader/version.txt  temp
-	sudo umount $(UDPBD_BD)
-	rmdir temp
-	ps2client -h 192.168.1.10 execee host:nhddl.elf
-
-# Start on PCSX2
-sim: all copy copy_extra
-	$(MAKE) -C ee/loader sim
-
-# Mount first partition of block device used in PCSX2 testing (ATA or USB)
-sim_mount:
-	losetup -Pf ee/loader/bd_exfat.raw
+# Optional developer targets stay local.
+-include local/development.mk
 
 RELEASE_DIR = ./releases/neutrino_$(shell git describe --tags --exclude=latest)
 release: all copy
