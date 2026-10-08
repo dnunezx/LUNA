@@ -12,6 +12,7 @@ if (-not (Test-Path -LiteralPath (Join-Path $oplRoot 'ee_core/Makefile'))) {
 $mount = '{0}:/src' -f $oplRoot
 $builds = @(
     @{ Directory = 'ee_core'; Options = @() },
+    @{ Directory = 'modules/mcemu'; Options = @('USE_LUNA=1') },
     @{ Directory = 'modules/iopcore/cdvdman'; Options = @('USE_BDM_ATA=1') },
     @{ Directory = 'modules/iopcore/cdvdman'; Options = @('USE_BDM=1', 'USE_DEV9=1') },
     @{ Directory = 'modules/iopcore/cdvdman'; Options = @('USE_FHI=1') },
@@ -26,6 +27,7 @@ foreach ($build in $builds) {
 New-Item -ItemType Directory -Path $outputRoot -Force | Out-Null
 $payloads = @(
     'ee_core/ee_core.elf',
+    'modules/mcemu/luna_mcemu.irx',
     'modules/iopcore/cdvdman/bdm_ata_cdvdman.irx',
     'modules/iopcore/cdvdman/bdm_cdvdman.irx',
     'modules/iopcore/cdvdman/fhi_cdvdman.irx',
