@@ -17,6 +17,80 @@ delay navigation.
 This README describes the current source tree. A published release package may
 have fewer features if the source has changed since that release.
 
+## Experimental PSXCore build
+
+The `psxcore` checkout has advanced to
+`a0c931f8d9672a53fc0a0ff5118ed139cc0c44b2`. Record the exact submodule pointer
+with each accepted LUNA revision; builds consume that checkout without fetching.
+Its source is reference-only and must never be edited in the LUNA workspace;
+consume upstream updates unchanged. Its GitHub repository is private:
+recursive checkouts and CI need Git credentials with access to
+`dnunezx/PSXCore`. Initialize it with `git submodule update --init psxcore`.
+Keep its license and third-party notices with any distributed runtime.
+
+From the LUNA workspace root, build the frontend and separate runtime together:
+
+```powershell
+docker run --rm -v "${PWD}:/workspace" ps2max/dev:v20260228 sh /workspace/tools/build-luna-psxcore.sh
+```
+
+This produces `nhddl/build-psxcore/luna.elf` and
+`nhddl/build-psxcore/psxcore-runtime-bootstrap.elf`, built by PSXCore's own
+Makefile. `psxcore-build.txt` records the source revision, SDK revision, build
+options, and whether the frontend has local changes; `psxcore-build.sha256`
+identifies the matching frontend, linked library, and runtime outputs.
+To consume an older reference ELF for development comparisons, set
+`LUNA_PSXCORE_RUNTIME_ELF` to its container path and
+`LUNA_PSXCORE_DEVELOPMENT=ON`. That build is labeled as an external reference
+whose source match is unverified. LUNA does not patch the runtime,
+replace storage modules, or add a private PSXCore launch protocol. With the upstream
+`ghcr.io/ps2homebrew/ps2homebrew:main` image, install CMake in the disposable
+container before running the script. For hardware builds, set container variables
+`LUNA_EMULATOR_OPTION=OFF` and `LUNA_BUILD_DIR=/workspace/nhddl/build-psxcore-hardware`.
+
+To explicitly advance to the latest PSXCore and rebuild both components:
+
+```powershell
+.\tools\update-psxcore.ps1
+```
+
+Use `-Development` for the local launcher, or `-Hardware` for a console build.
+The update refuses local PSXCore source changes and preserves frontend edits.
+It does not commit or push. Gameplay and save/reload checks are required before
+accepting an update. See [PSXCore update workflow](docs/PSXCORE-UPDATES.md).
+
+Standalone frontend builds retain `LUNA_ENABLE_PSXCORE=OFF` by default. Enable
+it with `-DLUNA_ENABLE_PSXCORE=ON` and optionally
+`-DLUNA_PSXCORE_SOURCE_DIR=/path/to/psxcore`; mount that checkout into the build
+container as well. This enables VCD discovery on the internal ATA drive and
+selected-game launching through the standalone runtime's standard ELF arguments.
+R3 cycles PS2, PS1, and Mix; favorites intersect the selected platform. PS1
+launches show preparation errors and require Square confirmation to provision
+missing memory cards. PSXCore owns card creation and saving. Runtime firmware
+(`POPS.ELF`, `IOPRP252.IMG`) remains separately supplied and is excluded from
+build outputs and packages.
+
+Local development builds can additionally set `LUNA_PSXCORE_DEVELOPMENT=ON`
+(CMake option or container variable for the combined build script). A local
+`host:/luna-psxcore-dev.txt` supplies the bootstrap ELF path followed by one
+unchanged PSXCore CLI argument per line. Select+Start invokes this entry;
+an optional final `auto` line invokes it upon library entry. For example:
+
+```text
+host:/psxcore-runtime-bootstrap.elf
+--file-request
+mass0:/POPS/REQUEST.BIN
+auto
+```
+
+The request stays on storage that standalone PSXCore can reopen after its IOP
+reset. LUNA transports only `argv`; PSXCore owns request validation, storage,
+runtime adaptation and saving. It can also receive its existing `--file` path
+and supported options. This entry adds no card-initialization option.
+Development files and test assets remain local and are excluded from packages.
+
+Gameplay and save/reload acceptance remain pending.
+
 ## Requirements
 
 - **Compatible PlayStation 2:** hardware testing has been done on a fat model PS2.
@@ -267,16 +341,26 @@ both the NHDDL-derived frontend and the Neutrino-derived game runtime.
 
 ### Per-game video output
 
-Open **Options → Game → Video → Video out**. Up/down selects a mode, and
-Cross enables it. Selecting an enabled mode again returns to **Default**,
+Open **Options → Game → Video → Video out** for separate **Neutrino** and
+**OPL** tabs. Left/right changes tabs, up/down selects a mode, and Cross
+enables it. Selecting an enabled mode again returns to **Default**,
 which keeps the game's original output. Press **Start** to save;
 **Triangle** returns to the Video submenu.
 
 Neutrino offers 240p/288p, 480p/576p, and three 1080i scaling presets.
-Field flipping in the Video submenu applies to the selected output mode.
+The OPL core offers 29 GSM presets, including NTSC/PAL, HDTV,
+PS1, and VGA modes. Each core keeps its own settings. Select the library
+default in **Global → Game core**, or override it in
+**Game → Launch & debug → Game core**. Neutrino remains the default.
+OPL can launch from ATA HDDs with FAT32 or exFAT, APA/HDL partitions,
+USB, MX4SIO, iLink, MMCE, and UDPFS. Block-device launches use the mounted
+filesystem's fragment map, including exFAT and files larger than 4 GiB.
+MMCE and UDPFS use the same file-handle transport drivers as Neutrino.
+These OPL device paths have passed build and local routing checks; gameplay
+on each physical device still needs verification.
+Field flipping in the Video submenu applies to the selected core.
 These options change video output without automatically increasing a game's
-internal rendering resolution. Neutrino is the sole game-launch backend;
-obsolete core-selection settings are ignored.
+internal rendering resolution.
 
 </details>
 

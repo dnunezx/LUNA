@@ -10,3 +10,6 @@
 	path = opl
 	url = https://github.com/dnunezx/Open-PS2-Loader.git
 	branch = opl-luna
+[submodule "psxcore"]
+	path = psxcore
+	url = https://github.com/dnunezx/PSXCore.git
