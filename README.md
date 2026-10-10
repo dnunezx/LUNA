@@ -354,16 +354,21 @@ gameplay. In-game return has also been tested on a physical FAT PS2.
 LUNA continues to use OPL-compatible title IDs and PNG artwork names:
 
 ```text
-/ART/<TITLE_ID>_COV.png       140x200 cover used by List
-/ART/<TITLE_ID>_ICO.png       optional 64x64 transparent disc label used by List
-/ART/PSBBN/<TITLE_ID>.png     optional 256x256 square artwork for Collections and Orbit
-/ART/ORBS/<TITLE_ID>_LGO.png  optional logo for Scroll
+/ART/<TITLE_ID>_COV.png        140x200 cover used by List and Scroll
+/ART/<TITLE_ID>_ICO.png        optional 64x64 transparent disc label used by List
+/ART/PSBBN/<TITLE_ID>.png      optional 256x256 square artwork for Collections and Orbit
+/ART/SCROLL/<TITLE_ID>_LGO.png  optional logo for Scroll (PS1 and PS2)
 ```
 
 Use
 [OrbitPS2 Manager — LUNA Edition](https://github.com/dnunezx/OrbitPS2-Manager-LUNA-edition)
 to obtain and prepare the square PSBBN artwork expected by Collections and Orbit.
 Missing Scroll logos show the game title as text instead.
+If upgrading an existing artwork library, rename `/ART/ORBS` to `/ART/SCROLL`.
+Scroll shows five logos above a horizontal cover carousel. The selected logo
+is enlarged, while neighboring covers recede in a dimmed V arrangement beneath
+their matching logos. The selected cover uses the same size and artwork quality
+as List.
 
 ## Storage and configuration
 
