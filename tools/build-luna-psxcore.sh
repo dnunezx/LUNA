@@ -68,6 +68,7 @@ if [ ! -f "$runtime_elf" ]; then
 fi
 cmake -S "$frontend" -B "$build_dir" \
   -DCMAKE_BUILD_TYPE=Release \
+  -DENABLE_PRINTF=OFF \
   -DLUNA_EMULATOR_BUILD="$emulator_build" \
   -DLUNA_ENABLE_PSXCORE=ON \
   -DLUNA_PSXCORE_DEVELOPMENT="$development" \

@@ -1,0 +1,89 @@
+name: Build 3.1.3 MmCE hotfix artifact
+run-name: LUNA 3.1.3 MmCE test hotfix · ${{ github.sha }}
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: luna-313-mmce-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    env:
+      BUILD_IMAGE: ps2max/dev@sha256:e390699d46818e7c736f414ae5b1789d3ef7d3d914ce646a8a7bd027bd7e4521
+    steps:
+      - name: Check out the hotfix and pinned dependencies
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0
+          submodules: recursive
+          persist-credentials: false
+
+      - name: Verify the 3.1.3 base and record source revisions
+        shell: bash
+        run: |
+          set -euo pipefail
+          git merge-base --is-ancestor v3.1.3 HEAD
+          test "$(git -C psxcore rev-parse HEAD)" = "$(git rev-parse v3.1.3:psxcore)"
+          mkdir -p output
+          {
+            printf 'base=v3.1.3\nluna=%s\n' "$(git rev-parse HEAD)"
+            for component in nhddl neutrino opl psxcore; do
+              printf '%s=%s\n' "$component" "$(git -C "$component" rev-parse HEAD)"
+            done
+            printf 'build_image=%s\n' "$BUILD_IMAGE"
+            printf 'validation=build-and-package-only; physical-MmCE-testing-pending\n'
+          } > output/SOURCE-REVISIONS.txt
+
+      - name: Build Neutrino and its runtime modules
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker run --rm -v "$PWD:/workspace" "$BUILD_IMAGE" sh -eu -c '
+            git config --global --add safe.directory /workspace/neutrino
+            make -C /workspace/neutrino -j2 all EESIO_DEBUG=0 IOPCORE_DEBUG=0
+            make -C /workspace/neutrino copy copy_extra
+          '
+
+      - name: Build the OPL runtime with MmCE return support
+        shell: pwsh
+        run: ./tools/build-opl-core.ps1 -Image $env:BUILD_IMAGE
+
+      - name: Build the hardware frontend and unchanged 3.1.3 PSXCore
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker run --rm -v "$PWD:/workspace" \
+            -e LUNA_BUILD_IMAGE="$BUILD_IMAGE" "$BUILD_IMAGE" sh -eu -c '
+              export LUNA_BUILD_DIR=/workspace/nhddl/build-mmce-hotfix
+              export LUNA_EMULATOR_OPTION=OFF
+              export LUNA_PSXCORE_DEVELOPMENT=OFF
+              sh /workspace/tools/build-luna-psxcore.sh
+            '
+
+      - name: Assemble and validate the downloadable hotfix
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          New-Item -ItemType Directory -Path dist -Force | Out-Null
+          Copy-Item -LiteralPath nhddl/build-mmce-hotfix/luna.elf -Destination dist/LUNA-Release-Candidate.elf
+          ./tools/package-fmcb.ps1 -PsxcoreBuildDirectory nhddl/build-mmce-hotfix
+          $name = 'LUNA-3.1.3-MmCE-hotfix-test-FMCB-mc0.zip'
+          Copy-Item -LiteralPath dist/LUNA-FMCB-mc0.zip -Destination "output/$name"
+          $hash = (Get-FileHash -LiteralPath "output/$name" -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$hash  $name" | Set-Content -LiteralPath output/SHA256SUMS.txt -Encoding ascii
+          "3.1.3 test hotfix: opt-in MmCE Game ID switching and boot-card restoration on in-game reset. Enable MMCE Game ID switching in Storage Devices, then choose Apply changes & scan. The original 3.1.3 interface and debug-color control are preserved. Physical MmCE testing remains pending. No release or tag was created." >> $env:GITHUB_STEP_SUMMARY
+
+      - name: Upload the hotfix ZIP and checksums
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: LUNA-3.1.3-MmCE-hotfix-test-${{ github.run_number }}
+          path: output/*
+          if-no-files-found: error
+          retention-days: 90
