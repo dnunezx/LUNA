@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/luna-logo.svg" alt="LUNA logo" width="700">
+  <img src="assets/luna-poster.png" alt="LUNA logo" width="700">
   <br>
   <sub>LIMEN UMBRAE NEXUS ARCANUM</sub>
 </p>
