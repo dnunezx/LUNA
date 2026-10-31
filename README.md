@@ -4,21 +4,9 @@
   <sub>LIMEN UMBRAE NEXUS ARCANUM</sub>
 </p>
 
-N̷ot everything b̸elongs in t̷he spotlight.
+Built u̶po̷n [NHDDL](https://github.com/pcm720/nhddl), it offers a̸ different v̶is̷i̷o̸n. Rooted i̸n̶ familiar f̷ou̶ndatio̶ns.
 
-B̷efore everything had t̸o be explained, t̷here was a different k̸ind of discovery. S̷ecrets passed between e̸nthusiasts, hidden possibilities, a̷nd experiences reserved f̸or those curious e̷nough to look d̸eeper.
-
-L̷U̸N̵A̶ carries t̷hat same spirit. N̸ot built for attention, b̷ut for those w̸ho still believe t̷here's more to d̸iscover. There was a t̷ime when the m̸ost interesting things w̷eren't advertised. They were f̸ound in forgotten c̷orners, shared through q̷uiet conversations, and passed a̸long by those w̷ho understood their s̸ignificance. No spotlight. N̷o grand announcements. J̸ust curiosity and the t̷hrill of discovering s̸omething unexpected.
-
-That s̷pirit doesn't have t̸o disappear.
-
-// P̷reserve the m̸ystery. Share the e̷xperience. Keep it u̸nderground.
-
-Built u̶po̷n [NHDDL](https://github.com/pcm720/nhddl), i̷t offers a̸ different v̶is̷i̷o̸n for t̶he̸ PlayStation 2̶. Rooted i̸n̶ familiar f̷ou̶ndatio̶ns yet d̸ri̶ven by u̶ne̸xplored possibilities, L̷UN̷A pushes b̸ey̷o̶nd̸ the b̶o̷u̷n̶d̷aries of i̷ts original d̶esi̸gn̶. An e̶xper̷i̷ence̸ that c̷onti̷n̸ues to e̸v̷olv̷e̶, revealing o̷n̶ly̶ what i̷t chooses t̷o show.
-
-P̶S̶2 games l̶au̶n̸ch through [Neutrino](https://github.com/rickgaiser/neutrino) or [O̶P̸L](https://github.com/ps2homebrew/Open-PS2-Loader). PS1 g̶ames̷ launch t̸hr̸ou̷gh̸ [P̶SX̸Co̶re̷](https://github.com/dnunezx/PSXCore).
-
-<sub>S̷o̸m̵e̷ s̸e̷c̵r̸e̷t̵s̶ w̷e̸r̵e̷ n̸e̷v̵e̸r̷ m̵e̷a̸n̷t̶ t̸o̷ b̵e̶ f̷o̸u̵n̷d̸.</sub>
+ISOs l̶au̶n̸ch through [Neutrino](https://github.com/rickgaiser/neutrino) or [O̶P̸L](https://github.com/ps2homebrew/Open-PS2-Loader). VCDs launch t̸hr̸ou̷gh̸ [P̶SX̸Co̶re̷](https://github.com/dnunezx/PSXCore).
 
 <details>
 <summary><strong>0x01 // Library v̶ie̶w̸s</strong></summary>
@@ -75,14 +63,12 @@ mc0:/APP_LUNA/
   modules/
 ```
 
-<details>
-<summary><strong>// Optional a̶mbi̷ent̶ music</strong></summary>
+### // Optional a̶mbi̷ent̶ music
 
 
 I̷f̷ your r̶el̸ea̶s̷e̶ includes `Ambient-Music-Add-On`, c̸opy̶ its `ambient.wav` f̸il̸e into `APP_LUNA`. I̸t uses a̶b̶o̸u̸t 1.3 MB o̷f̸ additional c̷ard space. E̷n̸abl̷e̶ Options → G̷l̸ob̷al → Ambient s̷o̷u̸n̸d, then p̸r̶ess Start t̷o̷ save. L̸UNA also w̸ork̶s without t̶he music f̸il̸e.
 
 
-</details>
 
 
 </details>
@@ -103,8 +89,7 @@ I̷f̷ your r̶el̸ea̶s̷e̶ includes `Ambient-Music-Add-On`, c̸opy̶ its `amb
 /LUNA/                       Library state and settings
 ```
 
-<details>
-<summary><strong>SYS_01 // PlayStation s̶etup</strong></summary>
+### SYS_01 // PlayStation s̶etup
 
 
 PS1 d̷i̶s̷c̶o̶very and l̶au̶n̸ch preparation s̶up̷p̷ort internal A̸TA̸ and U̶SB drives. P̸l̷a̸ce compatible `.VCD` i̷mages̸ in `VCD/` o̸n the g̸ame drive. S̶u̷pp̷ly the e̶xact firmware f̷iles̸ accepted b̷y the b̸u̸ndl̷ed̷ PSXCore v̷ersi̶on̶ on t̷hat̸ same d̸ri̷v̷e:
@@ -121,10 +106,8 @@ Press L̸3 to c̸hoos̶e Mix o̸r PS1, s̸ele̶ct a g̸ame, and p̸r̶ess Cross.
 <a name="multi-disc-games"></a>
 
 
-</details>
 
-<details>
-<summary><strong>SYS_02 // Multi-d̸isc games</strong></summary>
+### SYS_02 // Multi-d̸isc games
 
 
 A̷ disc s̶et combines t̸wo to f̶our̸ VCD i̷mages̸ into o̶ne library e̷n̶tr̸y. Keep e̷ve̶ry image o̸n the s̷am̶e drive a̸n̶d̸ arrange t̸hem̷ in t̶he game's̸ disc o̷rder.
@@ -132,10 +115,8 @@ A̷ disc s̶et combines t̸wo to f̶our̸ VCD i̷mages̸ into o̶ne library e̷n
 <a name="create-a-set-in-luna"></a>
 
 
-</details>
 
-<details>
-<summary><strong>SYS_03 // Create a̶ set i̶n̸ LUNA</strong></summary>
+### SYS_03 // Create a̶ set i̶n̸ LUNA
 
 
 1. H̷ighli̸ght one o̷f̸ the g̸ame's d̶i̶scs̸ and o̸p̶en Triangle → G̶a̷m̷e̶ → Discs.
@@ -145,10 +126,8 @@ A̷ disc s̶et combines t̸wo to f̶our̸ VCD i̷mages̸ into o̶ne library e̷n
 5. Highlight t̶he grouped e̷n̶tr̸y. Under G̶a̷m̷e̶ → Discs → S̶tar̸t disc, c̸hoos̶e the d̸isc to b̶o̶ot and p̸r̶ess Start t̷o̷ save. R̷e̸t̸ur̸n to t̶he library a̸n̶d̸ press C̶ros̶s to l̶au̶n̸ch.
 
 
-</details>
 
-<details>
-<summary><strong>SYS_04 // S̷wap discs d̶uri̶ng play</strong></summary>
+### SYS_04 // S̷wap discs d̶uri̶ng play
 
 
 L̶aunch̷ the g̷r̷o̶up̷ed entry s̶o PSXCore r̸ece̶i̶ve̶s̶ the c̸omp̸le̸te set. W̶hen the g̸ame asks y̷o̶u̸ to c̸ha̸nge discs, u̶se̷ controller p̷ort 1:
@@ -163,7 +142,6 @@ L̶aunch̷ the g̷r̷o̶up̷ed entry s̶o PSXCore r̸ece̶i̶ve̶s̶ the c̸omp�
 R̷e̶lease all b̷u̷tto̷n̶s̸ before e̸n̷ter̶in̸g a s̸hortcut̷, then r̶el̸ea̶s̷e̶ them a̷gai̶n after s̷e̶le̸ct̶in̸g the d̸isc so t̶he swap c̶a̶n̶ finish. F̷o̶l̸lo̷w the g̸ame's o̸n-screen p̶ro̸m̸p̷ts. Only d̶i̶scs̸ registered i̶n̸ the l̷au̶n̷ch̸ed set a̷re available. T̸h̷e̶s̶e shortcuts f̷ol̷lo̸w [PSXCore's̸ disc-s̷w̸ap controls](https://github.com/dnunezx/PSXCore). This c̸han̶g̶es the d̸isc in t̶he running g̸ame; it d̸o̸es̶ not l̶au̶n̸ch an u̶nr̸elated game f̶rom̷ your l̸i̶br̸a̶ry̶.
 
 
-</details>
 
 
 </details>
@@ -188,18 +166,15 @@ R̷e̶lease all b̷u̷tto̷n̶s̸ before e̸n̷ter̶in̸g a s̸hortcut̷, then r
 
 W̶hile̸ holding R̸1, use C̶ros̶s to t̸og̸gl̶e̷ the F̷a̶v̸orites filter, C̸i̶r̷cle to t̸og̸gl̶e̷ the s̸elect̷e̶d Favorite, T̸r̸i̶angl̸e for O̸ptio̶n̸s, L3 f̷or̷ the p̷latf̷orm filter, o̸r R3 f̷or̷ Orbit R̷an̷d̷o̷m Scan.
 
-<details>
-<summary><strong>SYS_05 // I̸n-game r̶eturn</strong></summary>
+### SYS_05 // I̸n-game r̶eturn
 
 
 ```text
 L1 + L2 + R1 + R2 + Start + Select
 ```
 
-</details>
 
-<details>
-<summary><strong>SYS_06 // P̶l̷a̸yS̸t̷at̷i̸on̸</strong></summary>
+### SYS_06 // P̶l̷a̸yS̸t̷at̷i̸on̸
 
 
 Use t̶he default s̸hare̷d cards o̸n the g̸ame drive, o̸r create a̸n̶d̸ assign a̶ named p̸air̷ through t̶he game's̸ memory-c̷ard settings. B̶oth slots f̷ol̷lo̸w the s̸elect̷e̶d pair. P̸re̶s̷s Start i̶n̸ game s̷ett̸in̷g̷s to s̸ave the a̷ssi̸gnmen̷t.
@@ -214,7 +189,6 @@ Use t̶he default s̸hare̷d cards o̸n the g̸ame drive, o̸r create a̸n̶d̸ 
 Each c̷ard is 128 KB. T̸h̷e manager s̸u̶p̷po̷rts import, e̶xpo̶rt̷, backups o̷f̸ both c̷ard̷s̷, and r̶e̶c̸ov̸e̶ry of i̶n̷terr̸upted card o̸pe̸rat̷i̷o̶n̷s̸. Importing i̷nto̸ a s̸hare̷d card a̸ffects̷ every g̸ame using i̸t. These m̷anagemen̶t features a̷re part o̷f̸ the e̶xpe̷rimen̸tal PS1 i̸nte̷grat̶io̸n; real-g̸ame save/r̷e̷lo̶a̷d testing r̷e̶m̷a̶i̶ns ongoing.
 
 
-</details>
 
 
 </details>
@@ -255,8 +229,7 @@ LUNA builds on years of work by the PlayStation 2 homebrew community.
 
 **Neutrino:** Rick Gaiser (Maximus32 / [ps2max32](https://github.com/ps2max32)) and contributors, for the [Neutrino](https://github.com/ps2max32/neutrino) game runtime and associated driver work, including network transports and MX4SIO contributions.
 
-<details>
-<summary><strong>Open PS2 Loader</strong></summary>
+### Open PS2 Loader
 
 
 Special thanks to **[Ifcaro](https://github.com/ifcaro) and [jimmikaelkael](https://github.com/jimmikaelkael)**, OPL’s original developers, and **[Polo / polo35](https://github.com/ps2homebrew/Open-PS2-Loader/blob/master/CREDITS)**, whose HD Project formed its original code foundation.
@@ -270,10 +243,8 @@ LUNA uses OPL game-core code and preserves its upstream attribution.
 **Full acknowledgements:** [Official OPL credits](https://github.com/ps2homebrew/Open-PS2-Loader/blob/master/CREDITS)
 
 
-</details>
 
-<details>
-<summary><strong>Drivers, filesystems, and libraries</strong></summary>
+### Drivers, filesystems, and libraries
 
 
 **[ps2dev / PS2SDK contributors:](https://github.com/ps2dev/ps2sdk)** The development foundation and drivers for storage, filesystems, controllers, memory cards, networking, and audio.
@@ -295,10 +266,8 @@ LUNA uses OPL game-core code and preserves its upstream attribution.
 **[libpng](https://www.libpng.org/pub/png/libpng.html), [zlib](https://zlib.net/), and [libtiff](https://libtiff.gitlab.io/libtiff/) contributors:** Image and compression libraries used by LUNA’s graphics dependencies.
 
 
-</details>
 
-<details>
-<summary><strong>Design, assets, and community</strong></summary>
+### Design, assets, and community
 
 
 **[CosmicScale](https://github.com/CosmicScale) and the [PSBBN Definitive Project:](https://github.com/CosmicScale/PSBBN-Definitive-Project)** Design inspiration and assets.
@@ -316,7 +285,6 @@ See [AUTHORS.md](https://github.com/dnunezx/LUNA/blob/main/AUTHORS.md), [UPSTREA
 Games, Sony firmware, and proprietary POPS runtime files are not distributed in this source repository.
 
 
-</details>
 
 
 </details>
