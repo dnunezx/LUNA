@@ -1,5 +1,5 @@
 name: Build work artifact
-run-name: LUNA work build · ${{ github.sha }}
+run-name: LUNA 3.1.3 + Slovak · ${{ github.sha }}
 
 on:
   workflow_dispatch:
@@ -32,7 +32,16 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p output
+          test "$(git -C nhddl rev-parse HEAD^)" = 127d012b07322dc0805ce62f877e5ba5e8cd6dbc
+          for component in neutrino opl psxcore; do
+            expected="$(git ls-tree v3.1.3 "$component" | awk '{print $3}')"
+            test "$(git -C "$component" rev-parse HEAD)" = "$expected"
+          done
+          unexpected="$(git -C nhddl diff --name-only 127d012b07322dc0805ce62f877e5ba5e8cd6dbc HEAD |
+            grep -Ev '^(include/ui/(language|dejavu_sans|psbbn_font)\.h|src/ui/language\.c|src/ui/language_catalog\.inc|tools/generate_(crt|psbbn)_font\.py|res/gfx/DejaVu Sans/bmfont/dejavusans(\.fnt|_0\.png))$' || true)"
+          test -z "$unexpected"
           {
+            printf 'base_release=v3.1.3\nbase_frontend=127d012b07322dc0805ce62f877e5ba5e8cd6dbc\nadded_language=sk\n'
             printf 'luna=%s\n' "$(git rev-parse HEAD)"
             for component in nhddl neutrino opl psxcore; do
               printf '%s=%s\n' "$component" "$(git -C "$component" rev-parse HEAD)"
@@ -71,15 +80,20 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           New-Item -ItemType Directory -Path dist -Force | Out-Null
-          Copy-Item -LiteralPath nhddl/build-work-artifact/luna.elf -Destination dist/LUNA-Release-Candidate.elf
-          ./tools/package-fmcb.ps1 -PsxcoreBuildDirectory nhddl/build-work-artifact
-          Copy-Item -LiteralPath dist/LUNA-FMCB-mc0.zip, dist/SHA256SUMS.txt -Destination output
+          # Preserve the published 3.1.3 installation text in the artifact.
+          git show v3.1.3:README.md | Set-Content -LiteralPath README.md -Encoding utf8NoBOM
+          if ($LASTEXITCODE -ne 0) { throw 'Could not read the 3.1.3 package readme.' }
+          git show v3.1.3:tools/ambient-music-addon.txt | Set-Content -LiteralPath tools/ambient-music-addon.txt -Encoding utf8NoBOM
+          if ($LASTEXITCODE -ne 0) { throw 'Could not read the 3.1.3 music instructions.' }
+          Copy-Item -LiteralPath nhddl/build-work-artifact/luna.elf -Destination dist/LUNA-v3.1.3.elf
+          ./tools/package-fmcb.ps1 -Version v3.1.3 -PsxcoreBuildDirectory nhddl/build-work-artifact
+          Copy-Item -LiteralPath dist/LUNA-v3.1.3-FMCB-mc0.zip, dist/SHA256SUMS.txt -Destination output
           "Built the pinned source revisions as a GitHub Actions artifact. No release or tag was created. Gameplay remains untested." >> $env:GITHUB_STEP_SUMMARY
 
       - name: Upload the work artifact
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: LUNA-work-build-${{ github.run_number }}
+          name: LUNA-3.1.3-Slovak-${{ github.run_number }}
           path: output/*
           if-no-files-found: error
           retention-days: 30

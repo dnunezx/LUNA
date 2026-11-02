@@ -19,8 +19,10 @@ if [ "${LUNA_PSXCORE_DEVELOPMENT:-OFF}" != OFF ] || [ -n "${LUNA_PSXCORE_RUNTIME
   echo "Development launch tools are local-only; use the local diagnostics rebuild instructions." >&2
   exit 1
 fi
-if grep -Eq 'collectionArtStats|decodePNGTextureRGBATimed|DPRINTF\(' "$frontend/src/ui/art_cache.c"; then
-  echo "Local diagnostic sources are restored; production builds require the clean production sources." >&2
+# This dedicated branch builds the original v3.1.3 frontend plus Slovak only.
+# Preserve its source; console output and development launch tools stay OFF.
+if [ "$(git -c safe.directory="$frontend" -C "$frontend" rev-parse HEAD)" != 69fedaaa9def0873c7865d317645b359240cd511 ]; then
+  echo "This build branch requires the verified 3.1.3 Slovak frontend." >&2
   exit 1
 fi
 runtime_elf=
