@@ -196,6 +196,15 @@ Each c̷ard is 128 KB. T̸h̷e manager s̸u̶p̷po̷rts import, e̶xpo̶rt̷, ba
 <details>
 <summary><strong>0x0S // S̷t̸o̶r̷a̸g̶e̷</strong></summary>
 
+**MMCE Game ID switching:** enable the existing option in **Start → Storage Devices**
+to select per-game cards on compatible MMCE devices. It is off by default and does
+not require MMCE to be enabled as a library source. MX4SIO must be inactive.
+
+The card holding the launcher switches only after the launch files are loaded
+and when in-game return is available. In-game return restores switched cards to
+their boot cards before LUNA reloads. Physical reset and power-cycle behavior
+follow the memory card's own startup configuration.
+
 
 Start → S̶to̷rag̶e Devices s̸e̸lects̶ ATA/e̸xF̸A̸T HDD, A̸P̸A̷/HDLoader H̶DD, USB, M̷X̶4SIO, MMCE, i̶Li̶n̶k̷, or U̶DPFS. Toggle s̷ou̸rces and c̸hoos̶e Apply c̸han̶g̶es & scan, r̷e̸sc̸an one e̸nab̸l̷ed̷ source w̶ith Square, o̸r rescan a̸ll enabled d̶evi̶ces. MX4SIO a̸n̶d̸ MMCE c̷a̶nnot be s̸elect̷e̶d together. U̶DPFS needs E̷t̷h̶e̷rn̸et and a̶ running s̶erv̶e̶r̶; its c̸ons̸ole-IP s̷ett̸ing̷ is t̶he PS2's̸ address.
 
@@ -254,6 +263,8 @@ LUNA uses OPL game-core code and preserves its upstream attribution.
 **[SP193:](https://github.com/sp193)** iLink driver work, alongside contributions to OPL and PS2SDK.
 
 **[MMCE authors and contributors:](https://github.com/ps2-mmce/mmceman)** MMCEMAN and the MMCE driver family used for compatible memory-card devices.
+
+**[Warksmith:](https://github.com/Warksmith)** MMCE Game ID integration, timer-independent polling, and launcher boot-card protection.
 
 **[Wisi:](https://github.com/wisi-w)** SIO2 research and documentation, and original MX4SIO work.
 
