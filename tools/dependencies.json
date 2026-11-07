@@ -1,7 +1,7 @@
 {
   "nhddl": {
     "url": "https://github.com/dnunezx/nhddl-luna.git",
-    "revision": "3f2e126c553cee5cc4db30333959e11d36b37f8c",
+    "revision": "f0df1f3be83cda7e8b5332aeb5420ec5e0e25634",
     "recursive": true
   },
   "neutrino": {
