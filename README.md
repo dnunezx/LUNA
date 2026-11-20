@@ -6,7 +6,7 @@
 
 Built upon [NHDDL](https://github.com/pcm720/nhddl), it offers a different vision. Rooted in familiar foundations.
 
-ISOs launch through [Neutrino](https://github.com/rickgaiser/neutrino) or [OPL](https://github.com/ps2homebrew/Open-PS2-Loader). VCDs launch through [PSXCore](https://github.com/dnunezx/PSXCore).
+ISOs launch through unofficial integrations [Neutrino](https://github.com/rickgaiser/neutrino) or [OPL](https://github.com/ps2homebrew/Open-PS2-Loader). VCDs launch through [PSXCore](https://github.com/dnunezx/PSXCore).
 
 <details>
 <summary><strong>0x01 // Library v̶ie̶w̸s</strong></summary>
